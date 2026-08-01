@@ -167,7 +167,12 @@ export function PlaybookApp({
         if (!result.categoryMatch) return null;
         if (activeCategory && activeCategory !== category.id) return null;
         if (kindFilter !== "all" && result.services.length === 0) return null;
-        return { category, services: result.services };
+        const sorted = [...result.services].sort(
+          (a, b) =>
+            (b.votes || 0) - (a.votes || 0) ||
+            a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+        );
+        return { category, services: sorted };
       })
       .filter(Boolean) as {
       category: Category;

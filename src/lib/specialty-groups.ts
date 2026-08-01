@@ -7,13 +7,20 @@ export type SpecialtyGroup = {
   services: ServiceWithCategory[];
 };
 
-/** Group contacts by specialty (ordered). Empty specialty → "other" at end. */
+/** Group contacts by specialty. Groups and items ordered by votes (desc). */
 export function groupContactsBySpecialty(
   contacts: ServiceWithCategory[]
 ): SpecialtyGroup[] {
+  const byVotes = (list: ServiceWithCategory[]) =>
+    [...list].sort(
+      (a, b) =>
+        (b.votes || 0) - (a.votes || 0) ||
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+    );
+
   const hasAny = contacts.some((s) => Boolean(s.specialty));
   if (!hasAny) {
-    return [{ key: "all", specialty: "", services: contacts }];
+    return [{ key: "all", specialty: "", services: byVotes(contacts) }];
   }
 
   const buckets = new Map<string, ServiceWithCategory[]>();
@@ -24,17 +31,29 @@ export function groupContactsBySpecialty(
     buckets.set(key, list);
   }
 
+  const knownOrder = new Map(
+    SPECIALTY_OPTIONS.map((def, index) => [def.id, index])
+  );
+
   const groups: SpecialtyGroup[] = [];
-  for (const def of SPECIALTY_OPTIONS) {
-    const list = buckets.get(def.id);
-    if (list?.length) {
-      groups.push({ key: def.id, specialty: def.id, services: list });
-      buckets.delete(def.id);
-    }
-  }
   for (const [key, list] of buckets) {
-    groups.push({ key, specialty: key === "other" ? "" : key, services: list });
+    groups.push({
+      key,
+      specialty: key === "other" ? "" : key,
+      services: byVotes(list),
+    });
   }
+
+  groups.sort((a, b) => {
+    const aTop = a.services[0]?.votes || 0;
+    const bTop = b.services[0]?.votes || 0;
+    if (bTop !== aTop) return bTop - aTop;
+    const aIdx = knownOrder.get(a.key) ?? 999;
+    const bIdx = knownOrder.get(b.key) ?? 999;
+    if (aIdx !== bIdx) return aIdx - bIdx;
+    return a.key.localeCompare(b.key);
+  });
+
   return groups;
 }
 
