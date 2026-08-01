@@ -235,7 +235,7 @@ export function ServicesAdmin({
           {form.kind === "contact" && (
             <div className="sm:col-span-2">
               <p className="mb-2 text-sm font-medium text-ink">
-                Specialty (trades / health)
+                Specialty (trades / health / wood / openings)
               </p>
               <select
                 value={form.specialty}

@@ -60,6 +60,47 @@ export const CURATED_CONTACTS: CuratedContact[] = [
     lat: 38.96345,
     lng: -9.41575,
   },
+  // Garden & outdoors (from playbook “Terra de Jardim” / Trees / Beekeeping)
+  {
+    id: "svc-terrum",
+    category_id: "cat-garden",
+    name: "Terrum Jardinagem — Rui",
+    details:
+      "Garden maintenance / landscaping (jardinagem) — recommended in the dads playbook.",
+    phone: "+351 936 027 031",
+    languages: "pt",
+  },
+  {
+    id: "svc-joviplant",
+    category_id: "cat-garden",
+    name: "Joviplant",
+    details:
+      "Nursery for buying trees in bulk — often far cheaper than Ericeira prices.",
+    phone: "+351 966 671 590",
+    languages: "pt",
+  },
+  {
+    id: "svc-beekeeper",
+    category_id: "cat-garden",
+    name: "Local beekeeper",
+    details:
+      "Pollination for fruit trees (Ericeira / Mafra). Also collects swarms from unwanted places.",
+    phone: "+351 913 901 318",
+    languages: "pt,en",
+  },
+  {
+    id: "svc-prehab",
+    category_id: "cat-health",
+    name: "Laurie — Prehab Lab",
+    details:
+      "Medically recommended soft-tissue therapy / mobility / performance training.",
+    address: "Sobreiro, 2640-817, Portugal",
+    phone: "+351 911 888 613",
+    email: "prehab.ericeira@gmail.com",
+    url: "https://www.prehablab.com",
+    languages: "en,pt",
+    specialty: "physio",
+  },
 ];
 
 export function ensureCuratedContacts(db: Database.Database) {
@@ -77,6 +118,36 @@ export function ensureCuratedContacts(db: Database.Database) {
       0, 'approved', ?, ''
     )`
   );
+  const ensureVisible = db.prepare(
+    `UPDATE services
+     SET category_id = ?,
+         status = CASE WHEN status IN ('rejected', 'hidden') THEN status ELSE 'approved' END,
+         name = CASE WHEN trim(name) = '' THEN ? ELSE name END,
+         phone = CASE WHEN trim(phone) = '' AND ? != '' THEN ? ELSE phone END,
+         details = CASE WHEN trim(details) = '' THEN ? ELSE details END,
+         languages = CASE WHEN trim(languages) = '' THEN ? ELSE languages END
+     WHERE id = ?`
+  );
+  /** Playbook tips that must keep canonical contact facts. */
+  const CANONICAL_IDS = new Set([
+    "svc-terrum",
+    "svc-joviplant",
+    "svc-beekeeper",
+    "svc-prehab",
+  ]);
+  const syncCanonical = db.prepare(
+    `UPDATE services
+     SET category_id = ?,
+         status = 'approved',
+         name = ?,
+         phone = CASE WHEN ? != '' THEN ? ELSE phone END,
+         email = CASE WHEN ? != '' THEN ? ELSE email END,
+         url = CASE WHEN ? != '' THEN ? ELSE url END,
+         details = CASE WHEN trim(details) = '' THEN ? ELSE details END,
+         languages = CASE WHEN trim(languages) = '' THEN ? ELSE languages END,
+         specialty = CASE WHEN trim(specialty) = '' AND ? != '' THEN ? ELSE specialty END
+     WHERE id = ?`
+  );
   const now = new Date().toISOString();
   const tx = db.transaction(() => {
     // Old combined “58 / Boardriders” tip → replaced by two clear listings
@@ -86,7 +157,36 @@ export function ensureCuratedContacts(db: Database.Database) {
     ).run();
 
     for (const c of CURATED_CONTACTS) {
-      if (exists.get(c.id)) continue;
+      if (exists.get(c.id)) {
+        if (CANONICAL_IDS.has(c.id)) {
+          syncCanonical.run(
+            c.category_id,
+            c.name,
+            c.phone || "",
+            c.phone || "",
+            c.email || "",
+            c.email || "",
+            c.url || "",
+            c.url || "",
+            c.details || "",
+            c.languages || "",
+            c.specialty || "",
+            c.specialty || "",
+            c.id
+          );
+        } else {
+          ensureVisible.run(
+            c.category_id,
+            c.name,
+            c.phone || "",
+            c.phone || "",
+            c.details || "",
+            c.languages || "",
+            c.id
+          );
+        }
+        continue;
+      }
       insert.run(
         c.id,
         c.category_id,

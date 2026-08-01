@@ -9,6 +9,7 @@ import {
   Phone,
 } from "lucide-react";
 import { LanguageFlags } from "./LanguageFlags";
+import { toMailtoHref } from "@/lib/email";
 import { toTelHref } from "@/lib/phone";
 import { parseSteps } from "@/lib/steps";
 import { trackClick } from "@/lib/track-click";
@@ -25,6 +26,7 @@ export function ProcedureCard({
 }) {
   const steps = parseSteps(service.steps);
   const phoneHref = service.phone ? toTelHref(service.phone) : null;
+  const mailHref = toMailtoHref(service.email);
   const panelId = useId();
   const [open, setOpen] = useState(defaultOpen || Boolean(highlight));
 
@@ -113,14 +115,15 @@ export function ProcedureCard({
                   {service.phone}
                 </a>
               )}
-              {service.email && (
+              {mailHref && (
                 <a
-                  href={`mailto:${service.email}`}
+                  href={mailHref}
                   onClick={() => trackClick(service.id, "email")}
-                  className="pressable inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-foam px-2.5 py-1.5 text-xs font-semibold text-ocean ring-1 ring-ocean/15"
+                  className="pressable inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-lg bg-foam px-2.5 py-1.5 text-xs font-semibold text-ocean ring-1 ring-ocean/15"
+                  title={service.email || undefined}
                 >
-                  <Mail className="h-3.5 w-3.5" />
-                  {service.email}
+                  <Mail className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{service.email}</span>
                 </a>
               )}
               {service.url && (

@@ -11,15 +11,26 @@ export type MapPin = {
   details?: string;
 };
 
+export type MapPinsOptions = {
+  /**
+   * When true (home overview), only pins within ~10 km of Ericeira.
+   * When false (category / search), include every pin that has coordinates.
+   */
+  localOnly?: boolean;
+};
+
 export function servicesToMapPins(
   services: ServiceWithCategory[],
-  categoryId?: string | null
+  categoryId?: string | null,
+  options: MapPinsOptions = {}
 ): MapPin[] {
+  const localOnly = options.localOnly ?? !categoryId;
+
   return services
     .filter((s) => {
       if (s.kind === "procedure") return false;
       if (s.lat == null || s.lng == null) return false;
-      if (!withinEriceiraRadius(s.lat, s.lng)) return false;
+      if (localOnly && !withinEriceiraRadius(s.lat, s.lng)) return false;
       if (categoryId && s.category_id !== categoryId) return false;
       return true;
     })

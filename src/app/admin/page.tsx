@@ -9,11 +9,13 @@ import {
 } from "@/components/AdminPanels";
 import { ReportsAdmin } from "@/components/ReportsAdmin";
 import { ClicksAdmin } from "@/components/ClicksAdmin";
+import { VoteNotesAdmin } from "@/components/VoteNotesAdmin";
 import type {
   Category,
   ServiceClickStats,
   ServiceReportSummary,
   ServiceWithCategory,
+  VoteNoteAdmin,
 } from "@/lib/types";
 
 type AdminData = {
@@ -22,6 +24,7 @@ type AdminData = {
   pending: ServiceWithCategory[];
   reports: ServiceReportSummary[];
   clickStats: ServiceClickStats[];
+  voteNotes: VoteNoteAdmin[];
 };
 
 export default function AdminPage() {
@@ -30,7 +33,7 @@ export default function AdminPage() {
   const [loginError, setLoginError] = useState("");
   const [data, setData] = useState<AdminData | null>(null);
   const [tab, setTab] = useState<
-    "pending" | "reports" | "clicks" | "services" | "categories"
+    "pending" | "reports" | "notes" | "clicks" | "services" | "categories"
   >("pending");
   const [message, setMessage] = useState("");
 
@@ -136,6 +139,7 @@ export default function AdminPage() {
     (n, s) => n + s.total_clicks,
     0
   );
+  const notesTotal = (data.voteNotes || []).length;
 
   return (
     <main className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -166,6 +170,7 @@ export default function AdminPage() {
           [
             ["pending", `Proposals (${data.pending.length})`],
             ["reports", `Private notes (${reportTotal})`],
+            ["notes", `Tip notes (${notesTotal})`],
             ["clicks", `Top clicks (${clickTotal})`],
             ["services", `Services (${data.services.length})`],
             ["categories", `Categories (${data.categories.length})`],
@@ -249,6 +254,13 @@ export default function AdminPage() {
 
       {tab === "reports" && (
         <ReportsAdmin reports={data.reports || []} onAction={adminAction} />
+      )}
+
+      {tab === "notes" && (
+        <VoteNotesAdmin
+          notes={data.voteNotes || []}
+          onAction={adminAction}
+        />
       )}
 
       {tab === "clicks" && (

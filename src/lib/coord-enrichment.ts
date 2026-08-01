@@ -40,6 +40,14 @@ export const COORD_BY_SERVICE_ID: Record<string, { lat: number; lng: number }> =
     // Kids
     "svc-urban-park": { lat: 38.961, lng: -9.412 },
     "svc-boulder": { lat: 38.9648, lng: -9.4135 },
+    "svc-fejao": { lat: 38.7712083, lng: -9.3476167 },
+    "svc-upup": { lat: 38.7394464, lng: -9.3402729 },
+    "svc-quantum-sintra": { lat: 38.7628879, lng: -9.3087652 },
+    "svc-quantum-almada": { lat: 38.6329019, lng: -9.1791281 },
+    "svc-jumpyard": { lat: 38.7249408, lng: -9.2154865 },
+    "svc-ninja": { lat: 38.7398394, lng: -9.2268728 },
+    "svc-parkour": { lat: 38.7398394, lng: -9.2268728 },
+    "svc-kidzania": { lat: 38.7770, lng: -9.2195 },
     // Health
     "svc-pure": { lat: 38.9625, lng: -9.414 },
     "svc-fisio": { lat: 38.9632, lng: -9.4146 },

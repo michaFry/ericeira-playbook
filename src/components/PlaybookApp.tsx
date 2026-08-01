@@ -3,16 +3,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { CategoryIcon } from "./CategoryIcon";
-import { ContactCard } from "./ContactCard";
+import { CollapsibleContactList } from "./CollapsibleContactList";
 import { EriceiraMapLazy } from "./EriceiraMapLazy";
 import { ProcedureCard } from "./ProcedureCard";
 import { ProposeModal } from "./ProposeModal";
 import { ReportModal } from "./ReportModal";
 import { SpecialtyGroupHeader } from "./SpecialtyBadge";
+import { VoteNoteModal } from "./VoteNoteModal";
 import { servicesToMapPins } from "@/lib/map-pins";
 import { isProcedure } from "@/lib/steps";
 import { groupContactsBySpecialty } from "@/lib/specialty-groups";
-import type { Category, ServiceWithCategory } from "@/lib/types";
+import type {
+  Category,
+  ServiceWithCategory,
+  VoteNotePublic,
+} from "@/lib/types";
 
 function voterKey() {
   const key = "playbook_voter";
@@ -126,12 +131,16 @@ function KindFilter({
 export function PlaybookApp({
   categories,
   services: initialServices,
+  voteNotes: initialNotes = {},
 }: {
   categories: Category[];
   services: ServiceWithCategory[];
+  voteNotes?: Record<string, VoteNotePublic[]>;
 }) {
   const [query, setQuery] = useState("");
   const [services, setServices] = useState(initialServices);
+  const [notesByService, setNotesByService] =
+    useState<Record<string, VoteNotePublic[]>>(initialNotes);
   const [voted, setVoted] = useState<Set<string>>(new Set());
   const [reported, setReported] = useState<Set<string>>(new Set());
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -142,7 +151,11 @@ export function PlaybookApp({
   const [reportTarget, setReportTarget] = useState<ServiceWithCategory | null>(
     null
   );
+  const [noteTarget, setNoteTarget] = useState<ServiceWithCategory | null>(
+    null
+  );
   const [toast, setToast] = useState("");
+  const searching = query.trim().length > 0;
 
   useEffect(() => {
     setVoted(votedSet());
@@ -186,13 +199,15 @@ export function PlaybookApp({
   const mapPins = useMemo(
     () =>
       servicesToMapPins(
-        activeCategory || query.trim()
+        activeCategory || searching
           ? grouped.flatMap((g) => g.services)
           : services,
-        activeCategory
+        activeCategory,
+        { localOnly: !activeCategory && !searching }
       ),
-    [services, activeCategory, query, grouped]
+    [services, activeCategory, searching, grouped]
   );
+  const unlockMapBounds = Boolean(activeCategory) || searching;
   async function toggleVote(id: string) {
     const res = await fetch(`/api/services/${id}/vote`, {
       method: "POST",
@@ -205,10 +220,42 @@ export function PlaybookApp({
       prev.map((s) => (s.id === id ? { ...s, votes: data.votes } : s))
     );
     const next = new Set(voted);
-    if (data.voted) next.add(id);
-    else next.delete(id);
+    if (data.voted) {
+      next.add(id);
+      const target = services.find((s) => s.id === id);
+      if (target) setNoteTarget(target);
+    } else {
+      next.delete(id);
+      // Server deletes this voter's note with the vote — refresh list
+      void fetch(`/api/services/${id}/notes`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((payload) => {
+          if (!payload?.notes) return;
+          setNotesByService((prev) => ({ ...prev, [id]: payload.notes }));
+        })
+        .catch(() => {});
+    }
     setVoted(next);
     saveVoted(next);
+  }
+
+  async function submitVoteNote(note: string) {
+    if (!noteTarget) return;
+    const id = noteTarget.id;
+    const res = await fetch(`/api/services/${id}/notes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ voterKey: voterKey(), note }),
+    });
+    if (!res.ok) throw new Error("save failed");
+    const data = await res.json();
+    setNotesByService((prev) => {
+      const others = (prev[id] || []).filter(
+        (n) => n.id !== data.note.id
+      );
+      return { ...prev, [id]: [data.note, ...others] };
+    });
+    setToast("Thanks — your tip note is on the card.");
   }
 
   async function submitReport(reason: string) {
@@ -250,9 +297,10 @@ export function PlaybookApp({
             Ericeira Dad&apos;s{" "}
             <span className="text-sun">Playbook</span>
           </p>
-          <p className="mt-4 max-w-[40ch] text-[0.95rem] leading-relaxed text-white/90 sm:mt-5 sm:text-lg">
-            Trusted local shortcuts from the WhatsApp group — people, places,
-            and the tips that never make it online.
+          <p className="mt-4 text-[0.95rem] leading-relaxed text-white/90 text-pretty sm:mt-5 sm:text-lg">
+            Trusted local shortcuts from the now iconic Ericeira Dad&apos;s
+            WhatsApp group — people, places, and the tips that never make it
+            online.
           </p>
 
           <div className="mt-6 flex flex-col gap-2.5 sm:mt-9 sm:flex-row sm:items-stretch sm:gap-3">
@@ -261,15 +309,17 @@ export function PlaybookApp({
               <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ocean/55" />
               <input
                 name="q"
-                type="search"
+                type="text"
+                inputMode="search"
                 enterKeyHint="search"
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck={false}
                 value={query}
                 onChange={(e) => {
-                  setQuery(e.target.value);
-                  setActiveCategory(null);
+                  const next = e.target.value;
+                  setQuery(next);
+                  if (activeCategory) setActiveCategory(null);
                 }}
                 placeholder='Try "dishwasher", "plumber"…'
                 className="w-full rounded-2xl border-0 bg-white py-3.5 pl-12 pr-4 text-base font-medium text-ink shadow-[0_10px_30px_rgba(4,42,53,0.16)] outline-none ring-2 ring-transparent transition placeholder:text-ink-soft focus:ring-sun sm:py-4"
@@ -285,7 +335,7 @@ export function PlaybookApp({
             </button>
           </div>
 
-          <p className="mt-4 text-[0.8rem] leading-relaxed text-white/75 sm:max-w-[52ch] sm:text-sm">
+          <p className="mt-4 text-[0.8rem] leading-relaxed text-white/75 text-pretty sm:text-sm">
             Leave a thumbs-up for a tip that worked, or flag a bad experience —
             flags stay private so we can quietly drop bad providers without
             calling anyone out.
@@ -307,11 +357,11 @@ export function PlaybookApp({
         </div>
       </header>
 
-      {!query && (
-        <section
-          className="animate-rise mb-8 sm:mb-10"
-          style={{ animationDelay: "70ms" }}
-        >
+      <section
+        className={`animate-rise mb-8 sm:mb-10 ${searching ? "hidden" : ""}`}
+        style={{ animationDelay: "70ms" }}
+        aria-hidden={searching}
+      >
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <h2 className="font-display text-xl font-semibold text-ink sm:text-2xl">
               Jump to a need
@@ -365,31 +415,10 @@ export function PlaybookApp({
               })}
             </div>
           </div>
-        </section>
-      )}
-
-      {/* Home: map under categories. Category selected: list first, then filtered map. */}
-      {!query && !activeCategory && (
-        <section
-          className="animate-rise mb-8 sm:mb-10"
-          style={{ animationDelay: "100ms" }}
-          aria-label="Ericeira map"
-        >
-          <h2 className="mb-3 font-display text-xl font-semibold text-ink sm:text-2xl">
-            Around Ericeira
-          </h2>
-          <EriceiraMapLazy
-            pins={mapPins}
-            onSelectPin={(pin) => {
-              setActiveCategory(pin.categoryId);
-              setKindFilter("all");
-            }}
-          />
-        </section>
-      )}
+      </section>
 
       <main id="results" className="space-y-8 sm:space-y-12">
-        {query && (
+        {searching && (
           <KindFilter value={kindFilter} onChange={setKindFilter} />
         )}
 
@@ -476,7 +505,8 @@ export function PlaybookApp({
                       )}
                       {(() => {
                         const groups = groupContactsBySpecialty(contacts);
-                        const grouped = groups.length > 1 || Boolean(groups[0]?.specialty);
+                        const grouped =
+                          groups.length > 1 || Boolean(groups[0]?.specialty);
                         return (
                           <div className={grouped ? "space-y-5" : undefined}>
                             {groups.map((group) => (
@@ -486,22 +516,18 @@ export function PlaybookApp({
                                     specialty={group.specialty}
                                   />
                                 )}
-                                <ul className="divide-y divide-ocean/10 overflow-hidden rounded-2xl bg-surface shadow-sm ring-1 ring-ocean/12">
-                                  {group.services.map((service) => (
-                                    <ContactCard
-                                      key={service.id}
-                                      service={service}
-                                      highlight={highlight}
-                                      isVoted={voted.has(service.id)}
-                                      isReported={reported.has(service.id)}
-                                      showSpecialtyBadge={Boolean(
-                                        service.specialty
-                                      )}
-                                      onVote={() => toggleVote(service.id)}
-                                      onReport={() => setReportTarget(service)}
-                                    />
-                                  ))}
-                                </ul>
+                                <CollapsibleContactList
+                                  services={group.services}
+                                  highlight={highlight}
+                                  voted={voted}
+                                  reported={reported}
+                                  notesByService={notesByService}
+                                  showSpecialtyBadge={Boolean(
+                                    group.services.some((s) => s.specialty)
+                                  )}
+                                  onVote={toggleVote}
+                                  onReport={setReportTarget}
+                                />
                               </div>
                             ))}
                           </div>
@@ -516,23 +542,31 @@ export function PlaybookApp({
         ))}
       </main>
 
-      {!query && activeCategory && (
-        <section
-          className="animate-rise mt-8 mb-8 sm:mt-10 sm:mb-10"
-          aria-label="Category map"
-        >
-          <h2 className="mb-3 font-display text-xl font-semibold text-ink sm:text-2xl">
-            On the map
-          </h2>
-          <EriceiraMapLazy
-            pins={mapPins}
-            onSelectPin={(pin) => {
-              setActiveCategory(pin.categoryId);
-              setKindFilter("all");
-            }}
-          />
-        </section>
-      )}
+      {/* Keep map mounted (CSS-hidden while searching) so Leaflet doesn't steal search focus */}
+      <section
+        className={`animate-rise mb-8 sm:mb-10 ${
+          searching
+            ? "hidden"
+            : activeCategory
+              ? "mt-8 sm:mt-10"
+              : ""
+        }`}
+        style={{ animationDelay: "100ms" }}
+        aria-label={activeCategory ? "Category map" : "Ericeira map"}
+        aria-hidden={searching}
+      >
+        <h2 className="mb-3 font-display text-xl font-semibold text-ink sm:text-2xl">
+          {activeCategory ? "On the map" : "Around Ericeira"}
+        </h2>
+        <EriceiraMapLazy
+          pins={mapPins}
+          unlockBounds={unlockMapBounds}
+          onSelectPin={(pin) => {
+            setActiveCategory(pin.categoryId);
+            setKindFilter("all");
+          }}
+        />
+      </section>
 
       <footer className="mt-12 border-t border-ocean/15 pt-5 text-sm text-ink-soft sm:mt-16 sm:pt-6">
         <p>
@@ -557,6 +591,14 @@ export function PlaybookApp({
           serviceName={reportTarget.name}
           onClose={() => setReportTarget(null)}
           onSubmit={submitReport}
+        />
+      )}
+
+      {noteTarget && (
+        <VoteNoteModal
+          serviceName={noteTarget.name}
+          onClose={() => setNoteTarget(null)}
+          onSubmit={submitVoteNote}
         />
       )}
 

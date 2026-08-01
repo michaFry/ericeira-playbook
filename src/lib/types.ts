@@ -76,3 +76,17 @@ export type ServiceClickStats = {
   email_clicks: number;
   url_clicks: number;
 };
+
+/** Public tip note left after a thumbs-up (no voter identity). */
+export type VoteNotePublic = {
+  id: string;
+  service_id: string;
+  body: string;
+  created_at: string;
+};
+
+/** Admin view of tip notes. */
+export type VoteNoteAdmin = VoteNotePublic & {
+  service_name: string;
+  category_name: string;
+};

@@ -1,13 +1,25 @@
 "use client";
 
-import { ExternalLink, Flag, Mail, MapPin, Phone, ThumbsUp } from "lucide-react";
+import { useState } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Flag,
+  Mail,
+  MapPin,
+  MessageSquareText,
+  Phone,
+  ThumbsUp,
+} from "lucide-react";
 import { GoogleSnapshot } from "./GoogleSnapshot";
 import { LanguageFlags } from "./LanguageFlags";
 import { SpecialtyBadge } from "./SpecialtyBadge";
 import { mapsSearchUrl } from "@/lib/maps";
+import { toMailtoHref } from "@/lib/email";
 import { toTelHref } from "@/lib/phone";
 import { trackClick } from "@/lib/track-click";
-import type { ServiceWithCategory } from "@/lib/types";
+import type { ServiceWithCategory, VoteNotePublic } from "@/lib/types";
 
 export function ContactCard({
   service,
@@ -15,6 +27,7 @@ export function ContactCard({
   isVoted,
   isReported,
   showSpecialtyBadge,
+  notes = [],
   onVote,
   onReport,
 }: {
@@ -23,10 +36,13 @@ export function ContactCard({
   isVoted: boolean;
   isReported: boolean;
   showSpecialtyBadge?: boolean;
+  notes?: VoteNotePublic[];
   onVote: () => void;
   onReport: () => void;
 }) {
+  const [notesOpen, setNotesOpen] = useState(false);
   const phoneHref = service.phone ? toTelHref(service.phone) : null;
+  const mailHref = toMailtoHref(service.email);
 
   return (
     <li
@@ -50,6 +66,40 @@ export function ContactCard({
               {service.details}
             </p>
           )}
+
+          {notes.length > 0 && (
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={() => setNotesOpen((v) => !v)}
+                className="pressable inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-sun/15 px-2.5 py-1.5 text-xs font-semibold text-ocean-deep ring-1 ring-sun/30"
+                aria-expanded={notesOpen}
+              >
+                <MessageSquareText className="h-3.5 w-3.5" aria-hidden />
+                {notes.length} tip note{notes.length === 1 ? "" : "s"}
+                {notesOpen ? (
+                  <ChevronUp className="h-3.5 w-3.5" aria-hidden />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                )}
+              </button>
+              {notesOpen && (
+                <ul className="mt-2 space-y-1.5 rounded-xl bg-foam/80 px-3 py-2.5 ring-1 ring-ocean/10">
+                  {notes.map((n) => (
+                    <li
+                      key={n.id}
+                      className="text-sm leading-snug text-ink-muted"
+                    >
+                      <span className="text-ocean/40">&ldquo;</span>
+                      {n.body}
+                      <span className="text-ocean/40">&rdquo;</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           <GoogleSnapshot
             rating={service.rating}
             reviewsCount={service.reviews_count}
@@ -82,14 +132,24 @@ export function ContactCard({
                 {service.phone}
               </a>
             )}
-            {service.email && (
+            {mailHref && (
               <a
-                href={`mailto:${service.email}`}
-                onClick={() => trackClick(service.id, "email")}
-                className="pressable inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-foam px-3 py-2 text-xs font-semibold text-ocean ring-1 ring-ocean/15 sm:min-h-0 sm:px-2.5 sm:py-1.5"
+                href={mailHref}
+                onClick={() => {
+                  trackClick(service.id, "email");
+                  try {
+                    void navigator.clipboard?.writeText(
+                      mailHref.replace(/^mailto:/i, "")
+                    );
+                  } catch {
+                    // ignore clipboard failures
+                  }
+                }}
+                className="pressable inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-lg bg-foam px-3 py-2 text-xs font-semibold text-ocean ring-1 ring-ocean/15 sm:min-h-0 sm:px-2.5 sm:py-1.5"
+                title={`${service.email} (copied on click)`}
               >
-                <Mail className="h-3.5 w-3.5" />
-                Email
+                <Mail className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{service.email}</span>
               </a>
             )}
             {service.url && (

@@ -18,7 +18,10 @@ import type {
   ServiceClickStats,
   ServiceReportSummary,
   ServiceWithCategory,
+  VoteNoteAdmin,
+  VoteNotePublic,
 } from "./types";
+import { sanitizeVoteNote } from "./vote-notes";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "playbook.db");
@@ -94,11 +97,22 @@ function createSchema(db: Database.Database) {
       FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS vote_notes (
+      id TEXT PRIMARY KEY,
+      service_id TEXT NOT NULL,
+      voter_key TEXT NOT NULL,
+      body TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      UNIQUE(service_id, voter_key),
+      FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_services_category ON services(category_id);
     CREATE INDEX IF NOT EXISTS idx_services_status ON services(status);
     CREATE INDEX IF NOT EXISTS idx_reports_service ON reports(service_id);
     CREATE INDEX IF NOT EXISTS idx_clicks_service ON clicks(service_id);
     CREATE INDEX IF NOT EXISTS idx_clicks_kind ON clicks(kind);
+    CREATE INDEX IF NOT EXISTS idx_vote_notes_service ON vote_notes(service_id);
   `);
 }
 
@@ -217,6 +231,17 @@ function migrateSchema(db: Database.Database) {
     );
     CREATE INDEX IF NOT EXISTS idx_clicks_service ON clicks(service_id);
     CREATE INDEX IF NOT EXISTS idx_clicks_kind ON clicks(kind);
+
+    CREATE TABLE IF NOT EXISTS vote_notes (
+      id TEXT PRIMARY KEY,
+      service_id TEXT NOT NULL,
+      voter_key TEXT NOT NULL,
+      body TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      UNIQUE(service_id, voter_key),
+      FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_vote_notes_service ON vote_notes(service_id);
   `);
 }
 
@@ -371,4 +396,113 @@ export function listTopClickedServices(limit = 10): ServiceClickStats[] {
        LIMIT ?`
     )
     .all(limit) as ServiceClickStats[];
+}
+
+/** Public tip notes for approved services (grouped by service_id). */
+export function listPublicVoteNotesByService(): Record<string, VoteNotePublic[]> {
+  const rows = getDb()
+    .prepare(
+      `SELECT vn.id, vn.service_id, vn.body, vn.created_at
+       FROM vote_notes vn
+       JOIN services s ON s.id = vn.service_id
+       WHERE s.status = 'approved'
+       ORDER BY vn.created_at DESC`
+    )
+    .all() as VoteNotePublic[];
+
+  const map: Record<string, VoteNotePublic[]> = {};
+  for (const row of rows) {
+    const list = map[row.service_id] || [];
+    list.push(row);
+    map[row.service_id] = list;
+  }
+  return map;
+}
+
+export function listVoteNotesForService(serviceId: string): VoteNotePublic[] {
+  return getDb()
+    .prepare(
+      `SELECT id, service_id, body, created_at
+       FROM vote_notes
+       WHERE service_id = ?
+       ORDER BY created_at DESC`
+    )
+    .all(serviceId) as VoteNotePublic[];
+}
+
+export function listAdminVoteNotes(): VoteNoteAdmin[] {
+  return getDb()
+    .prepare(
+      `SELECT vn.id, vn.service_id, vn.body, vn.created_at,
+              s.name as service_name, c.name as category_name
+       FROM vote_notes vn
+       JOIN services s ON s.id = vn.service_id
+       JOIN categories c ON c.id = s.category_id
+       ORDER BY vn.created_at DESC`
+    )
+    .all() as VoteNoteAdmin[];
+}
+
+/** Upsert a tip note — voter must already have an active vote. */
+export function upsertVoteNote(
+  serviceId: string,
+  voterKey: string,
+  rawBody: unknown
+): { ok: true; note: VoteNotePublic } | { ok: false; error: string } {
+  const body = sanitizeVoteNote(rawBody);
+  if (!body) {
+    return { ok: false, error: "Note too short" };
+  }
+
+  const db = getDb();
+  const vote = db
+    .prepare("SELECT id FROM votes WHERE service_id = ? AND voter_key = ?")
+    .get(serviceId, voterKey);
+  if (!vote) {
+    return { ok: false, error: "Vote required first" };
+  }
+
+  const existing = db
+    .prepare("SELECT id FROM vote_notes WHERE service_id = ? AND voter_key = ?")
+    .get(serviceId, voterKey) as { id: string } | undefined;
+
+  const now = new Date().toISOString();
+  if (existing) {
+    db.prepare(
+      `UPDATE vote_notes SET body = ?, created_at = ? WHERE id = ?`
+    ).run(body, now, existing.id);
+    return {
+      ok: true,
+      note: {
+        id: existing.id,
+        service_id: serviceId,
+        body,
+        created_at: now,
+      },
+    };
+  }
+
+  const id = crypto.randomUUID();
+  db.prepare(
+    `INSERT INTO vote_notes (id, service_id, voter_key, body, created_at)
+     VALUES (?, ?, ?, ?, ?)`
+  ).run(id, serviceId, voterKey, body, now);
+
+  return {
+    ok: true,
+    note: { id, service_id: serviceId, body, created_at: now },
+  };
+}
+
+export function deleteVoteNoteById(id: string): void {
+  getDb().prepare("DELETE FROM vote_notes WHERE id = ?").run(id);
+}
+
+export function deleteVoteNoteForVoter(
+  serviceId: string,
+  voterKey: string
+): void {
+  getDb()
+    .prepare("DELETE FROM vote_notes WHERE service_id = ? AND voter_key = ?")
+    .run(serviceId, voterKey);
 }

@@ -7,7 +7,7 @@ export type SpecialtyGroup = {
   services: ServiceWithCategory[];
 };
 
-/** Group contacts by specialty. Groups and items ordered by votes (desc). */
+/** Prefer specialty taxonomy order within a category; then by votes. */
 export function groupContactsBySpecialty(
   contacts: ServiceWithCategory[]
 ): SpecialtyGroup[] {
@@ -31,8 +31,8 @@ export function groupContactsBySpecialty(
     buckets.set(key, list);
   }
 
-  const knownOrder = new Map(
-    SPECIALTY_OPTIONS.map((def, index) => [def.id, index])
+  const knownOrder = new Map<string, number>(
+    SPECIALTY_OPTIONS.map((def) => [def.id, def.sort_order])
   );
 
   const groups: SpecialtyGroup[] = [];
@@ -44,12 +44,11 @@ export function groupContactsBySpecialty(
     });
   }
 
+  // Specialty groups in taxonomy order (timber → delivery → decks → …),
+  // not by top votes — keeps wood/trades/health sections readable.
   groups.sort((a, b) => {
-    const aTop = a.services[0]?.votes || 0;
-    const bTop = b.services[0]?.votes || 0;
-    if (bTop !== aTop) return bTop - aTop;
-    const aIdx = knownOrder.get(a.key) ?? 999;
-    const bIdx = knownOrder.get(b.key) ?? 999;
+    const aIdx = knownOrder.get(a.key) ?? 9999;
+    const bIdx = knownOrder.get(b.key) ?? 9999;
     if (aIdx !== bIdx) return aIdx - bIdx;
     return a.key.localeCompare(b.key);
   });

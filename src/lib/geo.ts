@@ -22,6 +22,8 @@ export const ERICEIRA_BOUNDS: [[number, number], [number, number]] = [
 export const ERICEIRA_DEFAULT_ZOOM = 13;
 /** Allow slight zoom-out so fitBounds can frame a full category with padding. */
 export const ERICEIRA_MIN_ZOOM = 11;
+/** When framing distant category pins (e.g. kids in Sintra / Lisboa). */
+export const CATEGORY_MAP_MIN_ZOOM = 9;
 export const ERICEIRA_MAX_ZOOM = 17;
 
 export function haversineKm(

@@ -31,6 +31,9 @@ export async function POST(
       voterKey
     );
     db.prepare(
+      "DELETE FROM vote_notes WHERE service_id = ? AND voter_key = ?"
+    ).run(id, voterKey);
+    db.prepare(
       "UPDATE services SET votes = MAX(votes - 1, 0) WHERE id = ?"
     ).run(id);
     const updated = getServiceById(id)!;

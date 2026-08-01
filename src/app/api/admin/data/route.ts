@@ -3,10 +3,12 @@ import { isAdmin } from "@/lib/auth";
 import {
   getDb,
   listAllServices,
+  listAdminVoteNotes,
   listCategories,
   listPendingServices,
   listReportSummaries,
   listTopClickedServices,
+  deleteVoteNoteById,
 } from "@/lib/db";
 import { randomUUID } from "crypto";
 
@@ -22,6 +24,7 @@ export async function GET() {
     pending: listPendingServices(),
     reports: listReportSummaries(),
     clickStats: listTopClickedServices(10),
+    voteNotes: listAdminVoteNotes(),
   });
 }
 
@@ -180,8 +183,15 @@ export async function POST(request: Request) {
   if (action === "deleteService") {
     const id = String(body.id || "");
     db.prepare("DELETE FROM votes WHERE service_id = ?").run(id);
+    db.prepare("DELETE FROM vote_notes WHERE service_id = ?").run(id);
     db.prepare("DELETE FROM reports WHERE service_id = ?").run(id);
+    db.prepare("DELETE FROM clicks WHERE service_id = ?").run(id);
     db.prepare("DELETE FROM services WHERE id = ?").run(id);
+    return NextResponse.json({ ok: true });
+  }
+
+  if (action === "deleteVoteNote") {
+    deleteVoteNoteById(String(body.id || ""));
     return NextResponse.json({ ok: true });
   }
 

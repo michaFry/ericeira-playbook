@@ -42,6 +42,45 @@ export const SPECIALTY_BY_SERVICE_ID: Record<string, SpecialtyId> = {
   "svc-dale": "training",
   "svc-benedita": "nursing",
   "svc-derm-lisbon": "dermatology",
+
+  // Wood — timber yards
+  "svc-balbino": "timber",
+  "svc-comapla": "timber",
+  "svc-ido": "timber",
+  "svc-mdo": "timber",
+  "svc-somassul": "timber",
+  "svc-multiplacas": "timber",
+  "svc-ascenso": "timber",
+  // Wood delivery
+  "svc-lourosmad": "wood_delivery",
+  "svc-sobreira": "wood_delivery",
+  // Decks
+  "svc-jonas-bartel": "decks",
+  "svc-woodcraft": "decks",
+  "svc-brian": "decks",
+  // Carpenters
+  "svc-brian-carp": "carpenter",
+  "svc-jotalves": "carpenter",
+  // Custom furniture / SPA fit-out
+  "svc-edson": "furniture",
+  "svc-quirumed": "furniture",
+  // Stone & countertops
+  "svc-mpsseixo": "stone",
+  "svc-stone-gzq": "stone",
+
+  // Gates, windows & doors
+  "svc-sebastec": "gates",
+  "svc-bernardo-assis": "gates",
+  "svc-wilson-gate": "gates",
+  "svc-aluterm": "gates",
+  "svc-jorge-antunes": "gates",
+  "svc-silverio": "garage_doors",
+  "svc-julio": "garage_doors",
+  "svc-fernando-martins": "shutters",
+  "svc-carmezim": "windows_doors",
+  "svc-windoor": "windows_doors",
+  "svc-supercaleiras": "gutters",
+  "svc-isolaterm": "insulation",
 };
 
 export function applySpecialtyEnrichment(db: Database.Database) {

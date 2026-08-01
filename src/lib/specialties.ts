@@ -1,16 +1,28 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
+  Armchair,
+  Axe,
+  Blinds,
   Bone,
+  BrickWall,
+  CloudRain,
   Cross,
+  DoorClosed,
   Droplets,
   Dumbbell,
+  Fence,
   Hammer,
   Hand,
+  Layers,
   Paintbrush,
+  PanelTop,
   Refrigerator,
   ScanFace,
   Smile,
+  Thermometer,
+  TreePine,
+  Truck,
   Zap,
 } from "lucide-react";
 
@@ -28,7 +40,21 @@ export type SpecialtyId =
   | "osteopathy"
   | "training"
   | "nursing"
-  | "dermatology";
+  | "dermatology"
+  // Wood, decks, furniture & materials
+  | "timber"
+  | "wood_delivery"
+  | "decks"
+  | "carpenter"
+  | "furniture"
+  | "stone"
+  // Gates, windows & doors
+  | "gates"
+  | "garage_doors"
+  | "shutters"
+  | "windows_doors"
+  | "gutters"
+  | "insulation";
 
 export type SpecialtyDef = {
   id: SpecialtyId;
@@ -150,6 +176,118 @@ export const SPECIALTIES: Record<SpecialtyId, SpecialtyDef> = {
     sort_order: 70,
     groupHint: "Individuals",
   },
+
+  // —— Wood, decks, furniture & materials ——
+  timber: {
+    id: "timber",
+    label: "Buy timber / wood",
+    short: "Timber",
+    icon: TreePine,
+    tone: "bg-lime-600/15 text-lime-900 ring-lime-600/25",
+    sort_order: 210,
+    groupHint: "Yards & suppliers",
+  },
+  wood_delivery: {
+    id: "wood_delivery",
+    label: "Wood delivery",
+    short: "Delivery",
+    icon: Truck,
+    tone: "bg-yellow-600/15 text-yellow-900 ring-yellow-600/25",
+    sort_order: 220,
+    groupHint: "Suppliers",
+  },
+  decks: {
+    id: "decks",
+    label: "Decks & outdoor wood",
+    short: "Decks",
+    icon: Layers,
+    tone: "bg-amber-700/15 text-amber-950 ring-amber-700/25",
+    sort_order: 230,
+    groupHint: "Builders",
+  },
+  carpenter: {
+    id: "carpenter",
+    label: "Carpenters",
+    short: "Carpenter",
+    icon: Axe,
+    tone: "bg-orange-700/15 text-orange-950 ring-orange-700/25",
+    sort_order: 240,
+    groupHint: "Craftspeople",
+  },
+  furniture: {
+    id: "furniture",
+    label: "Custom furniture",
+    short: "Furniture",
+    icon: Armchair,
+    tone: "bg-rose-700/15 text-rose-950 ring-rose-700/25",
+    sort_order: 250,
+    groupHint: "Makers",
+  },
+  stone: {
+    id: "stone",
+    label: "Stone & countertops",
+    short: "Stone",
+    icon: BrickWall,
+    tone: "bg-neutral-500/15 text-neutral-800 ring-neutral-500/30",
+    sort_order: 260,
+    groupHint: "Materials",
+  },
+
+  // —— Gates, windows & doors ——
+  gates: {
+    id: "gates",
+    label: "Automatic gates",
+    short: "Gates",
+    icon: Fence,
+    tone: "bg-slate-600/15 text-slate-900 ring-slate-600/25",
+    sort_order: 310,
+    groupHint: "Access",
+  },
+  garage_doors: {
+    id: "garage_doors",
+    label: "Garage doors",
+    short: "Garage",
+    icon: PanelTop,
+    tone: "bg-zinc-600/15 text-zinc-900 ring-zinc-600/25",
+    sort_order: 320,
+    groupHint: "Access",
+  },
+  shutters: {
+    id: "shutters",
+    label: "Rolling shutters",
+    short: "Shutters",
+    icon: Blinds,
+    tone: "bg-stone-600/15 text-stone-900 ring-stone-600/25",
+    sort_order: 330,
+    groupHint: "Openings",
+  },
+  windows_doors: {
+    id: "windows_doors",
+    label: "Windows & doors",
+    short: "Windows",
+    icon: DoorClosed,
+    tone: "bg-blue-600/15 text-blue-950 ring-blue-600/25",
+    sort_order: 340,
+    groupHint: "Openings",
+  },
+  gutters: {
+    id: "gutters",
+    label: "Gutters",
+    short: "Gutters",
+    icon: CloudRain,
+    tone: "bg-sky-700/15 text-sky-950 ring-sky-700/25",
+    sort_order: 350,
+    groupHint: "Exterior",
+  },
+  insulation: {
+    id: "insulation",
+    label: "Insulation",
+    short: "Insulation",
+    icon: Thermometer,
+    tone: "bg-orange-600/15 text-orange-950 ring-orange-600/25",
+    sort_order: 360,
+    groupHint: "Exterior",
+  },
 };
 
 export const SPECIALTY_OPTIONS = Object.values(SPECIALTIES).sort(
@@ -172,6 +310,24 @@ export const HEALTH_SPECIALTY_IDS: SpecialtyId[] = [
   "training",
   "nursing",
   "dermatology",
+];
+
+export const WOOD_SPECIALTY_IDS: SpecialtyId[] = [
+  "timber",
+  "wood_delivery",
+  "decks",
+  "carpenter",
+  "furniture",
+  "stone",
+];
+
+export const OPENINGS_SPECIALTY_IDS: SpecialtyId[] = [
+  "gates",
+  "garage_doors",
+  "shutters",
+  "windows_doors",
+  "gutters",
+  "insulation",
 ];
 
 export function getSpecialty(

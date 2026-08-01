@@ -10,12 +10,14 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import {
+  CATEGORY_MAP_MIN_ZOOM,
   ERICEIRA_BOUNDS,
   ERICEIRA_CENTER,
   ERICEIRA_DEFAULT_ZOOM,
   ERICEIRA_MAX_ZOOM,
   ERICEIRA_MIN_ZOOM,
   MAP_RADIUS_KM,
+  withinEriceiraRadius,
 } from "@/lib/geo";
 import type { MapPin } from "@/lib/map-pins";
 import "leaflet/dist/leaflet.css";
@@ -59,12 +61,23 @@ function pinIcon(categoryId: string) {
   });
 }
 
-function FitBoundsGuard() {
+function MapBoundsMode({ unlock }: { unlock: boolean }) {
   const map = useMap();
   useEffect(() => {
-    map.setMaxBounds(ERICEIRA_BOUNDS);
-    map.options.maxBoundsViscosity = 0.85;
-  }, [map]);
+    if (unlock) {
+      map.setMinZoom(CATEGORY_MAP_MIN_ZOOM);
+      // Leaflet: empty LatLngBounds clears maxBounds restriction
+      map.setMaxBounds([
+        [-90, -180],
+        [90, 180],
+      ]);
+      map.options.maxBoundsViscosity = 0;
+    } else {
+      map.setMinZoom(ERICEIRA_MIN_ZOOM);
+      map.setMaxBounds(ERICEIRA_BOUNDS);
+      map.options.maxBoundsViscosity = 0.85;
+    }
+  }, [map, unlock]);
   return null;
 }
 
@@ -82,7 +95,7 @@ function FitToPins({ pins }: { pins: MapPin[] }) {
       return;
     }
     if (pins.length === 1) {
-      map.setView([pins[0].lat, pins[0].lng], 15, { animate: true });
+      map.setView([pins[0].lat, pins[0].lng], 14, { animate: true });
       return;
     }
     const bounds = L.latLngBounds(
@@ -90,7 +103,7 @@ function FitToPins({ pins }: { pins: MapPin[] }) {
     );
     map.fitBounds(bounds, {
       padding: [48, 48],
-      maxZoom: 16,
+      maxZoom: 15,
       animate: true,
     });
   }, [map, key, pins]);
@@ -101,14 +114,22 @@ function FitToPins({ pins }: { pins: MapPin[] }) {
 export function EriceiraMap({
   pins,
   onSelectPin,
+  unlockBounds = false,
 }: {
   pins: MapPin[];
   onSelectPin?: (pin: MapPin) => void;
+  /** Allow framing pins outside the ~10 km Ericeira box (category / search). */
+  unlockBounds?: boolean;
 }) {
   const center = useMemo(
     () => [ERICEIRA_CENTER.lat, ERICEIRA_CENTER.lng] as [number, number],
     []
   );
+
+  const hasDistantPins = pins.some(
+    (p) => !withinEriceiraRadius(p.lat, p.lng)
+  );
+  const unlocked = unlockBounds || hasDistantPins;
 
   return (
     <div className="overflow-hidden rounded-2xl ring-1 ring-ocean/15 shadow-sm">
@@ -116,13 +137,14 @@ export function EriceiraMap({
         <MapContainer
           center={center}
           zoom={ERICEIRA_DEFAULT_ZOOM}
-          minZoom={ERICEIRA_MIN_ZOOM}
+          minZoom={unlocked ? CATEGORY_MAP_MIN_ZOOM : ERICEIRA_MIN_ZOOM}
           maxZoom={ERICEIRA_MAX_ZOOM}
-          maxBounds={ERICEIRA_BOUNDS}
+          maxBounds={unlocked ? undefined : ERICEIRA_BOUNDS}
           scrollWheelZoom
+          keyboard={false}
           className="h-full w-full z-0"
         >
-          <FitBoundsGuard />
+          <MapBoundsMode unlock={unlocked} />
           <FitToPins pins={pins} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -155,8 +177,9 @@ export function EriceiraMap({
         </MapContainer>
       </div>
       <p className="bg-surface px-3 py-2 text-center text-[0.7rem] text-ink-soft sm:text-left sm:px-4">
-        Ericeira ±{MAP_RADIUS_KM} km · {pins.length} pin
-        {pins.length === 1 ? "" : "s"} on the map
+        {unlocked
+          ? `Including places further afield · ${pins.length} pin${pins.length === 1 ? "" : "s"}`
+          : `Ericeira ±${MAP_RADIUS_KM} km · ${pins.length} pin${pins.length === 1 ? "" : "s"} on the map`}
       </p>
     </div>
   );
