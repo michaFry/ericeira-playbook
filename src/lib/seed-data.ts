@@ -1,474 +1,36 @@
 import type Database from "better-sqlite3";
-
-type SeedCategory = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  icon: string;
-  sort_order: number;
-};
+import {
+  CATEGORY_REMAP,
+  OPTIMIZED_CATEGORIES,
+} from "./category-restructure";
+import { SPECIALTY_BY_SERVICE_ID } from "./specialty-enrichment";
 
 type SeedService = {
   id: string;
   category_id: string;
   name: string;
   details?: string;
+  address?: string;
   phone?: string;
   email?: string;
   url?: string;
 };
 
-const categories: SeedCategory[] = [
-  {
-    id: "cat-admin",
-    name: "Getting help with admin",
-    slug: "admin-help",
-    description:
-      "Help with car import, account opening, utilities… Often expensive via expat agents. Prefer local Portuguese professionals — ask the group for the latest best option.",
-    icon: "ClipboardList",
-    sort_order: 10,
-  },
-  {
-    id: "cat-car",
-    name: "Car",
-    slug: "car",
-    description: "Car import, selling, and related tips around Ericeira.",
-    icon: "Car",
-    sort_order: 20,
-  },
-  {
-    id: "cat-mechanic",
-    name: "Mechanic",
-    slug: "mechanic",
-    description: "Trusted garages and mechanics recommended by dads.",
-    icon: "Wrench",
-    sort_order: 30,
-  },
-  {
-    id: "cat-car-reg",
-    name: "Updating your car registration address",
-    slug: "car-registration",
-    description: "Update your vehicle registration address via IRN Mafra.",
-    icon: "FileText",
-    sort_order: 40,
-  },
-  {
-    id: "cat-energy",
-    name: "Energy provider",
-    slug: "energy",
-    description: "Compare and switch energy providers easily.",
-    icon: "Zap",
-    sort_order: 50,
-  },
-  {
-    id: "cat-construction",
-    name: "Construction advice",
-    slug: "construction-advice",
-    description:
-      "Before any job: ask for a detailed quote with quantity and material references. Check contractors on racius.com. Get an architect's trusted network, use a solid contract, ask 3–4 offers, never pay without taxes, release money per contract only when work starts on site.",
-    icon: "HardHat",
-    sort_order: 60,
-  },
-  {
-    id: "cat-spa",
-    name: "Installing a home SPA",
-    slug: "home-spa",
-    description: "SPA furniture and equipment.",
-    icon: "Bath",
-    sort_order: 70,
-  },
-  {
-    id: "cat-appliances",
-    name: "Dishwasher / Washing machine repair",
-    slug: "appliance-repair",
-    description: "Appliance repair in Ericeira.",
-    icon: "Refrigerator",
-    sort_order: 80,
-  },
-  {
-    id: "cat-structural",
-    name: "Structural engineer",
-    slug: "structural-engineer",
-    description: "Structural engineering (English spoken).",
-    icon: "Building2",
-    sort_order: 90,
-  },
-  {
-    id: "cat-handyman",
-    name: "Handyman",
-    slug: "handyman",
-    description: "General handymen and remodelações.",
-    icon: "Hammer",
-    sort_order: 100,
-  },
-  {
-    id: "cat-metal",
-    name: "Metal / Welding",
-    slug: "metal-welding",
-    description: "Metalwork and welding.",
-    icon: "Flame",
-    sort_order: 110,
-  },
-  {
-    id: "cat-deck",
-    name: "Creating a deck",
-    slug: "deck",
-    description: "Deck builders and woodcraft.",
-    icon: "Layers",
-    sort_order: 120,
-  },
-  {
-    id: "cat-wood-buy",
-    name: "Where to buy wood for construction",
-    slug: "buy-wood",
-    description: "Timber and wood suppliers.",
-    icon: "TreePine",
-    sort_order: 130,
-  },
-  {
-    id: "cat-furniture",
-    name: "Custom furniture",
-    slug: "custom-furniture",
-    description: "Custom furniture and spray artists.",
-    icon: "Armchair",
-    sort_order: 140,
-  },
-  {
-    id: "cat-builders",
-    name: "Builders",
-    slug: "builders",
-    description: "Building contractors around Ericeira.",
-    icon: "HardHat",
-    sort_order: 150,
-  },
-  {
-    id: "cat-wood-delivery",
-    name: "Wood Delivery",
-    slug: "wood-delivery",
-    description: "Wood delivery and carpentry suppliers.",
-    icon: "Truck",
-    sort_order: 160,
-  },
-  {
-    id: "cat-gate",
-    name: "Gate",
-    slug: "gate",
-    description: "Automatic gates, serralharia, glass and portões.",
-    icon: "DoorOpen",
-    sort_order: 170,
-  },
-  {
-    id: "cat-electrician",
-    name: "Electrician",
-    slug: "electrician",
-    description: "Electricians recommended by the group.",
-    icon: "Plug",
-    sort_order: 180,
-  },
-  {
-    id: "cat-painting",
-    name: "Painting",
-    slug: "painting",
-    description: "Painters.",
-    icon: "Paintbrush",
-    sort_order: 190,
-  },
-  {
-    id: "cat-plumber",
-    name: "Plumber",
-    slug: "plumber",
-    description: "Plumbers and heating.",
-    icon: "Droplets",
-    sort_order: 200,
-  },
-  {
-    id: "cat-cleaning",
-    name: "Cleaning",
-    slug: "cleaning",
-    description: "Cleaning services.",
-    icon: "Sparkles",
-    sort_order: 210,
-  },
-  {
-    id: "cat-garden",
-    name: "Terra de Jardim / Garden",
-    slug: "garden",
-    description: "Jardinagem and garden soil.",
-    icon: "Flower2",
-    sort_order: 220,
-  },
-  {
-    id: "cat-trees",
-    name: "Trees",
-    slug: "trees",
-    description:
-      "Buying lots of trees is much cheaper far from Ericeira — easily half price.",
-    icon: "TreeDeciduous",
-    sort_order: 230,
-  },
-  {
-    id: "cat-gutter",
-    name: "Nice Gutter",
-    slug: "gutter",
-    description: "Gutter (caleiras) specialists.",
-    icon: "Home",
-    sort_order: 240,
-  },
-  {
-    id: "cat-insulation",
-    name: "Insulation",
-    slug: "insulation",
-    description: "Insulation and caixilharia.",
-    icon: "Shield",
-    sort_order: 250,
-  },
-  {
-    id: "cat-architect",
-    name: "Architect",
-    slug: "architect",
-    description: "Architects and project studios.",
-    icon: "Ruler",
-    sort_order: 260,
-  },
-  {
-    id: "cat-stones",
-    name: "Stones (countertop)",
-    slug: "stones",
-    description: "Stone suppliers and countertops. Also shops in Terrugem.",
-    icon: "Gem",
-    sort_order: 270,
-  },
-  {
-    id: "cat-carpenter",
-    name: "Carpenter",
-    slug: "carpenter",
-    description: "Carpenters.",
-    icon: "Axe",
-    sort_order: 280,
-  },
-  {
-    id: "cat-inspection",
-    name: "Home Inspection",
-    slug: "home-inspection",
-    description: "Property inspection services tested by group members.",
-    icon: "SearchCheck",
-    sort_order: 290,
-  },
-  {
-    id: "cat-chimney",
-    name: "Chimney Cleaning",
-    slug: "chimney",
-    description: "Chimney cleaning service.",
-    icon: "Flame",
-    sort_order: 300,
-  },
-  {
-    id: "cat-garage",
-    name: "Garage Door",
-    slug: "garage-door",
-    description: "Garage door services.",
-    icon: "Warehouse",
-    sort_order: 310,
-  },
-  {
-    id: "cat-shutter",
-    name: "Rolling Shutter",
-    slug: "rolling-shutter",
-    description: "Rolling shutters (estoros).",
-    icon: "Blinds",
-    sort_order: 320,
-  },
-  {
-    id: "cat-windows",
-    name: "Windows & Doors",
-    slug: "windows-doors",
-    description: "Windows, doors and PVC replacements.",
-    icon: "AppWindow",
-    sort_order: 330,
-  },
-  {
-    id: "cat-heating",
-    name: "Heating",
-    slug: "heating",
-    description: "Heating specialists.",
-    icon: "Thermometer",
-    sort_order: 340,
-  },
-  {
-    id: "cat-solar",
-    name: "Solar / HeatPumps / Solar Thermal",
-    slug: "solar",
-    description: "Photovoltaic, heat pumps and solar thermal.",
-    icon: "Sun",
-    sort_order: 350,
-  },
-  {
-    id: "cat-taxi",
-    name: "Taxi",
-    slug: "taxi",
-    description: "Local taxis and transfers.",
-    icon: "Taxi",
-    sort_order: 360,
-  },
-  {
-    id: "cat-beer",
-    name: "Beer",
-    slug: "beer",
-    description: "Breweries and taprooms.",
-    icon: "Beer",
-    sort_order: 370,
-  },
-  {
-    id: "cat-restaurant",
-    name: "Restaurant (only the best)",
-    slug: "restaurants",
-    description: "Best restaurants around Ericeira.",
-    icon: "UtensilsCrossed",
-    sort_order: 380,
-  },
-  {
-    id: "cat-wine",
-    name: "Wine",
-    slug: "wine",
-    description: "Natural, low intervention and organic wines.",
-    icon: "Wine",
-    sort_order: 390,
-  },
-  {
-    id: "cat-bread",
-    name: "Bread",
-    slug: "bread",
-    description: "Bakeries.",
-    icon: "Croissant",
-    sort_order: 400,
-  },
-  {
-    id: "cat-butcher",
-    name: "Butcher",
-    slug: "butcher",
-    description: "Butchers and quality meat.",
-    icon: "Beef",
-    sort_order: 410,
-  },
-  {
-    id: "cat-chiro",
-    name: "Chiro / Osteo / Bodywork",
-    slug: "chiro-osteo",
-    description: "Chiropractic, osteopathy, physio and personal training.",
-    icon: "HeartPulse",
-    sort_order: 420,
-  },
-  {
-    id: "cat-nurse",
-    name: "Nurse",
-    slug: "nurse",
-    description: "Home nursing services.",
-    icon: "Cross",
-    sort_order: 430,
-  },
-  {
-    id: "cat-newborn",
-    name: "New born registration",
-    slug: "newborn-registration",
-    description:
-      "IRN Mafra newborn registration tips: Chave Móvel only for Portuguese citizens; pick priority ticket; email civil.mafra@irn.mj.pt; birth certs in Short/Full/Multilingual formats; bring a PT speaker if you can.",
-    icon: "Baby",
-    sort_order: 440,
-  },
-  {
-    id: "cat-beekeeping",
-    name: "Beekeeping",
-    slug: "beekeeping",
-    description: "Pollination services and swarm collection in Ericeira/Mafra.",
-    icon: "Bug",
-    sort_order: 450,
-  },
-  {
-    id: "cat-derm",
-    name: "Dermatologist",
-    slug: "dermatologist",
-    description: "Dermatologists.",
-    icon: "ScanFace",
-    sort_order: 460,
-  },
-  {
-    id: "cat-dentist",
-    name: "Dentist",
-    slug: "dentist",
-    description: "Dental clinics.",
-    icon: "Smile",
-    sort_order: 470,
-  },
-  {
-    id: "cat-it",
-    name: "IT",
-    slug: "it",
-    description: "Networks, domotics, servers, system administration.",
-    icon: "Laptop",
-    sort_order: 480,
-  },
-  {
-    id: "cat-repair",
-    name: "Repair services",
-    slug: "repair",
-    description: "Device and phone repair.",
-    icon: "Smartphone",
-    sort_order: 490,
-  },
-  {
-    id: "cat-cheap",
-    name: "Selling cheap stuff",
-    slug: "cheap-stuff",
-    description: "Affordable IT and gear.",
-    icon: "Tag",
-    sort_order: 500,
-  },
-  {
-    id: "cat-shirts",
-    name: "Shirt printing",
-    slug: "shirt-printing",
-    description: "Custom shirt printing.",
-    icon: "Shirt",
-    sort_order: 510,
-  },
-  {
-    id: "cat-cowork",
-    name: "Cowork / Work from outside home",
-    slug: "cowork",
-    description:
-      "Cafés open early; fancier ones sometimes from 10. Quiet spots and cowork spaces in Ericeira.",
-    icon: "Coffee",
-    sort_order: 520,
-  },
-  {
-    id: "cat-taxes",
-    name: "Taxes, lawyer and accounting",
-    slug: "taxes-legal",
-    description: "Tax, corporate law and accounting.",
-    icon: "Scale",
-    sort_order: 530,
-  },
-  {
-    id: "cat-photo",
-    name: "Photograph",
-    slug: "photograph",
-    description: "Photographers.",
-    icon: "Camera",
-    sort_order: 540,
-  },
-  {
-    id: "cat-kids",
-    name: "What to do indoor with kids",
-    slug: "kids-indoor",
-    description:
-      "Indoor activities in Sintra/Lisboa and closest options in Ericeira (Urban Park before 5pm, Ericeira Boulder).",
-    icon: "Gamepad2",
-    sort_order: 550,
-  },
-];
+/** Legacy category ids on services are remapped via CATEGORY_REMAP on seed. */
+const categories = OPTIMIZED_CATEGORIES;
 
 const services: SeedService[] = [
+  // Moving
+  {
+    id: "svc-andre-mudancas",
+    category_id: "cat-moving",
+    name: "André Mudanças",
+    details:
+      "Local mover / transport for Ericeira & Mafra (Google: ASTransportes, Santo Isidoro).",
+    address: "R. Lugar do Canto 4, 2640-064 Santo Isidoro, Portugal",
+    phone: "+351 965 670 870",
+    url: "http://usadosembomestado.pt/",
+  },
   // Car
   {
     id: "svc-acp",
@@ -500,7 +62,7 @@ const services: SeedService[] = [
     id: "svc-rui-fortunato",
     category_id: "cat-mechanic",
     name: "Rui Fortunato",
-    details: "Estrada da Cabeça Alta 6, Pinhal dos Frades",
+    address: "Estrada da Cabeça Alta 6, Pinhal dos Frades, Portugal",
     phone: "+351 962 706 330",
   },
   {
@@ -660,7 +222,7 @@ const services: SeedService[] = [
     id: "svc-ascenso",
     category_id: "cat-wood-buy",
     name: "Madeiras Ascenso",
-    details: "Achada",
+    address: "Madeiras Ascenso, Achada, Portugal",
   },
   // Furniture
   {
@@ -700,26 +262,28 @@ const services: SeedService[] = [
     id: "svc-lourosmad",
     category_id: "cat-wood-delivery",
     name: "Lourosmad",
-    details: "Rua Fernando Vicente, 12 — Zona Industrial de Arenes — 2560-677 Torres Vedras",
+    address:
+      "Rua Fernando Vicente 12, Zona Industrial de Arenes, 2560-677 Torres Vedras, Portugal",
     url: "https://lourosmad.pt/",
   },
   {
     id: "svc-jotalves",
     category_id: "cat-wood-delivery",
     name: "Jotalves, Carpintaria E Móveis, Lda.",
-    details: "Encarnação",
+    address: "Jotalves Carpintaria e Móveis, Encarnação, Portugal",
   },
   {
     id: "svc-sobreira",
     category_id: "cat-wood-delivery",
     name: "Sobreira & Serras, S.A.",
-    details: "Alto do Ulmeiro, 2635-565 Rio de Mouro",
+    address: "Alto do Ulmeiro, 2635-565 Rio de Mouro, Portugal",
   },
   // Gate
   {
     id: "svc-sebastec",
     category_id: "cat-gate",
     name: "Sebastec — Portas Automáticas, Lda",
+    address: "Sebastec Portas Automáticas, Portugal",
     phone: "+351 21 975 5783",
     url: "https://g.co/kgs/69Ur8Ym",
   },
@@ -882,7 +446,7 @@ const services: SeedService[] = [
     id: "svc-nuno-nasc",
     category_id: "cat-architect",
     name: "Nuno Nascimento",
-    details: "Rua Doutor Augusto Lamas 2A, 2760-152 Caxias",
+    address: "Rua Doutor Augusto Lamas 2A, 2760-152 Caxias, Portugal",
     phone: "+351 916 400 528",
     email: "geral@nunonascimento.com",
     url: "https://www.nunonascimento.com/",
@@ -891,7 +455,9 @@ const services: SeedService[] = [
     id: "svc-luran",
     category_id: "cat-architect",
     name: "Luran — Soc. Projectos e Const. Lda",
-    details: "Engenharia civil em Malveira — Travessa do Moinho Velho, n.º 1-A r/ch esq, 2665-252 Malveira",
+    details: "Engenharia civil em Malveira",
+    address:
+      "Travessa do Moinho Velho 1-A, r/c esquerdo, 2665-252 Malveira, Portugal",
     phone: "+351 21 986 2925",
   },
   {
@@ -899,6 +465,7 @@ const services: SeedService[] = [
     category_id: "cat-architect",
     name: "Tiago Barros Studio",
     details: "Ericeira — Mafra",
+    address: "Tiago Barros Studio, Ericeira, Portugal",
     phone: "+351 932 412 600",
     email: "info@tiagobarros.pt",
     url: "https://www.tiagobarros.pt",
@@ -907,12 +474,14 @@ const services: SeedService[] = [
     id: "svc-archstudio",
     category_id: "cat-architect",
     name: "Arch Studio Ericeira",
+    address: "Arch Studio Ericeira, Ericeira, Portugal",
     url: "https://archstudioericeira.com/en/",
   },
   {
     id: "svc-nocnoc",
     category_id: "cat-architect",
     name: "Noc Noc Studio",
+    address: "Noc Noc Studio, Ericeira, Portugal",
     url: "https://www.nocnocstudio.com/index.php/en/contacts",
   },
   // Stones
@@ -1031,8 +600,9 @@ const services: SeedService[] = [
   {
     id: "svc-alexandre",
     category_id: "cat-taxi",
-    name: "Alexandre",
-    details: "Uber, speaks English",
+    name: "Alexandre Airport Transfer",
+    details:
+      "Alex — super reliable Tesla airport transfers. Speaks English. ~€40 airport run (Ubers ~€35; the extra €5 is worth it). Meets you inside the terminal; give him your flight number and he tracks delays.",
     phone: "+351 927 390 502",
   },
   {
@@ -1070,46 +640,73 @@ const services: SeedService[] = [
     id: "svc-mean-sardine",
     category_id: "cat-beer",
     name: "Mean Sardine (Brewery)",
+    address: "Mean Sardine, Ericeira, Portugal",
   },
   {
     id: "svc-5emeio",
     category_id: "cat-beer",
     name: "5 e meio — TapRoom",
+    address: "5 e meio TapRoom, Ericeira, Portugal",
   },
   // Restaurants
-  { id: "svc-lagoa", category_id: "cat-restaurant", name: "Lagoa D'Ouro" },
-  { id: "svc-costa-fria", category_id: "cat-restaurant", name: "Costa Fria" },
-  { id: "svc-estrela", category_id: "cat-restaurant", name: "Estrela do Mar" },
+  {
+    id: "svc-lagoa",
+    category_id: "cat-restaurant",
+    name: "Lagoa D'Ouro",
+    address: "Lagoa D'Ouro, Ericeira, Portugal",
+  },
+  {
+    id: "svc-costa-fria",
+    category_id: "cat-restaurant",
+    name: "Costa Fria",
+    address: "Costa Fria, Ericeira, Portugal",
+  },
+  {
+    id: "svc-estrela",
+    category_id: "cat-restaurant",
+    name: "Estrela do Mar",
+    address: "Estrela do Mar, Ericeira, Portugal",
+  },
   {
     id: "svc-furnas",
     category_id: "cat-restaurant",
     name: "Furnas",
     details: "Seafood",
+    address: "Furnas, Ericeira, Portugal",
   },
   {
     id: "svc-golfinho",
     category_id: "cat-restaurant",
     name: "Golfinho Azul",
     details: "São Lourenço beach",
+    address: "Golfinho Azul, Praia de São Lourenço, Ericeira, Portugal",
   },
   {
     id: "svc-onegai",
     category_id: "cat-restaurant",
     name: "Onegai",
     details: "Sushi",
+    address: "Onegai Sushi, Ericeira, Portugal",
   },
-  { id: "svc-ribas", category_id: "cat-restaurant", name: "Ribas" },
+  {
+    id: "svc-ribas",
+    category_id: "cat-restaurant",
+    name: "Ribas",
+    address: "Ribas, Ericeira, Portugal",
+  },
   {
     id: "svc-cucina",
     category_id: "cat-restaurant",
     name: "Cucina 37",
     details: "Italian",
+    address: "Cucina 37, Ericeira, Portugal",
   },
   {
     id: "svc-kau",
     category_id: "cat-restaurant",
     name: "Kau Barbecue",
     details: "Best ribs or grilled meat around",
+    address: "Kau Barbecue, Ericeira, Portugal",
     url: "https://www.instagram.com/kau_barbecue",
   },
   // Wine
@@ -1117,24 +714,32 @@ const services: SeedService[] = [
     id: "svc-telmo-wine",
     category_id: "cat-wine",
     name: "Telmo — Garrafeira Terroir",
-    details: "Natural, Low Intervention and Organic Wines — private wine tastings at your home",
+    details:
+      "Natural, Low Intervention and Organic Wines — private wine tastings at your home",
+    address: "Garrafeira Terroir, Portugal",
     phone: "+351 916 353 911",
     url: "https://www.garrafeiraterroir.pt/",
   },
   // Bread
-  { id: "svc-terco", category_id: "cat-bread", name: "Terço do Meio" },
+  {
+    id: "svc-terco",
+    category_id: "cat-bread",
+    name: "Terço do Meio",
+    address: "Terço do Meio, Ericeira, Portugal",
+  },
   // Butcher
   {
     id: "svc-placido",
     category_id: "cat-butcher",
     name: "Talho Placido",
-    details: "EM550 58, 2655-405 Lisboa — order via WhatsApp",
+    details: "Order via WhatsApp",
+    address: "EM550 58, 2655-405 Lisboa, Portugal",
   },
   {
     id: "svc-mario-joao",
     category_id: "cat-butcher",
     name: "Talho do Mário João",
-    details: "Av. Primeiro de Maio 13, 2640-474 Mafra",
+    address: "Av. Primeiro de Maio 13, 2640-474 Mafra, Portugal",
   },
   {
     id: "svc-worldprime",
@@ -1159,7 +764,7 @@ const services: SeedService[] = [
     id: "svc-talho-central",
     category_id: "cat-butcher",
     name: "Talho Central da Ericeira",
-    details: "Largo dos Condes da Ericeira nº14 A",
+    address: "Largo dos Condes da Ericeira 14A, Ericeira, Portugal",
   },
   // Chiro
   {
@@ -1167,6 +772,7 @@ const services: SeedService[] = [
     category_id: "cat-chiro",
     name: "Pure Lifestyle Chiropractic",
     details: "Mafra",
+    address: "Pure Lifestyle Chiropractic, Mafra, Portugal",
     phone: "+351 965 458 330",
   },
   {
@@ -1174,13 +780,15 @@ const services: SeedService[] = [
     category_id: "cat-chiro",
     name: "Ricardo Bargiela",
     details: "Ericeira",
+    address: "Ricardo Bargiela Quiroprática, Ericeira, Portugal",
     phone: "+351 916 476 006",
   },
   {
     id: "svc-lencastre",
     category_id: "cat-chiro",
     name: "Carlos Lencastre — Quiroprática Oriental Integrativa",
-    details: "One World Business Building, Largo dos Pocinhos 2, Gabinete 320, 2655-333 Ericeira",
+    address:
+      "One World Business Building, Largo dos Pocinhos 2, Gabinete 320, 2655-333 Ericeira, Portugal",
     url: "https://www.carloslencastre.pt/agendamento/",
   },
   {
@@ -1188,7 +796,8 @@ const services: SeedService[] = [
     category_id: "cat-chiro",
     name: "Laurie — Prehab Lab",
     details:
-      "Medically recommended soft tissue therapy / mobility programming / personal training for performance & injury management. Sobreiro 2640-817",
+      "Medically recommended soft tissue therapy / mobility programming / personal training for performance & injury management.",
+    address: "Sobreiro, 2640-817, Portugal",
     phone: "+351 911 888 613",
     email: "prehab.ericeira@gmail.com",
     url: "https://www.prehablab.com",
@@ -1256,12 +865,14 @@ const services: SeedService[] = [
     id: "svc-pobral",
     category_id: "cat-dentist",
     name: "Clínica do Pobral",
+    address: "Clínica do Pobral, Portugal",
     phone: "+351 21 961 2000",
   },
   {
     id: "svc-real-clinica",
     category_id: "cat-dentist",
     name: "Real Clínica Mafra",
+    address: "Real Clínica, Mafra, Portugal",
     phone: "+351 261 786 363",
   },
   // IT
@@ -1277,6 +888,7 @@ const services: SeedService[] = [
     id: "svc-iservices",
     category_id: "cat-repair",
     name: "iServices Marina de Cascais",
+    address: "iServices, Marina de Cascais, Cascais, Portugal",
     phone: "+351 21 012 5750",
   },
   {
@@ -1304,64 +916,86 @@ const services: SeedService[] = [
     category_id: "cat-cowork",
     name: "Selina",
     details: "City center — nice terrace",
+    address: "Selina Ericeira, Ericeira, Portugal",
   },
   {
     id: "svc-brunch",
     category_id: "cat-cowork",
     name: "Brunch Me",
     details: "Nice café",
+    address: "Brunch Me, Ericeira, Portugal",
   },
   {
     id: "svc-balagan",
     category_id: "cat-cowork",
     name: "Balagan",
     details: "Praia do Sul — often crowded",
+    address: "Balagan, Praia do Sul, Ericeira, Portugal",
   },
   {
     id: "svc-barbatana",
     category_id: "cat-cowork",
     name: "Barbatana",
     details: "Foz do Lisandro",
+    address: "Barbatana, Foz do Lizandro, Ericeira, Portugal",
   },
   {
     id: "svc-vilagale",
     category_id: "cat-cowork",
     name: "Hotel Vila Galé",
     details: "So quiet",
+    address: "Hotel Vila Galé Ericeira, Ericeira, Portugal",
   },
   {
-    id: "svc-58",
+    id: "svc-58-surf",
     category_id: "cat-cowork",
-    name: "58 / Boardriders",
+    name: "58 Surf",
+    details:
+      "Flagship surf shop (Billabong / 58) — retail, not a café. Same block as Boardriders.",
+    address: "Av. São Sebastião 36B, 2655-483 Ericeira, Portugal",
+    phone: "+351 261 860 900",
+    url: "https://58surf.com/",
+  },
+  {
+    id: "svc-boardriders",
+    category_id: "cat-cowork",
+    name: "Boardriders Quiksilver",
+    details:
+      "Surf shop + café — coffee spot next door to 58 Surf (36A).",
+    address: "Av. São Sebastião 36A, 2655-319 Ericeira, Portugal",
+    phone: "+351 261 867 046",
   },
   {
     id: "svc-organic",
     category_id: "cat-cowork",
     name: "The Organic Way",
+    address: "The Organic Way, Ericeira, Portugal",
   },
   {
     id: "svc-intermarche",
     category_id: "cat-cowork",
     name: "Intermarché (1st floor)",
     details: "Not the sexiest but always has room and quiet. Opens early.",
+    address: "Intermarché Ericeira, Ericeira, Portugal",
   },
   {
     id: "svc-the-base",
     category_id: "cat-cowork",
     name: "The Base — Ericeira",
     details: "Cowork",
+    address: "The Base Cowork, Ericeira, Portugal",
   },
   {
     id: "svc-coastal",
     category_id: "cat-cowork",
     name: "Coastal Cowork",
-    details: "R. de São Félix 12e, 2655-362 Ericeira",
+    address: "Rua de São Félix 12e, 2655-362 Ericeira, Portugal",
   },
   {
     id: "svc-salt",
     category_id: "cat-cowork",
     name: "The Salt Studio",
-    details: "Tv. do Jogo da Bola 1, 2655-297 Ericeira",
+    address: "Travessa do Jogo da Bola 1, 2655-297 Ericeira, Portugal",
   },
   // Taxes
   {
@@ -1417,12 +1051,14 @@ const services: SeedService[] = [
     category_id: "cat-kids",
     name: "Feijão Verde (Sintra)",
     details: "All ages",
+    address: "Feijão Verde, Sintra, Portugal",
     url: "https://maps.app.goo.gl/iEVWj8Ph7cEy3TmC9",
   },
   {
     id: "svc-upup",
     category_id: "cat-kids",
     name: "Up Up Trampoline (Sintra)",
+    address: "Up Up Trampoline, Sintra, Portugal",
     url: "https://maps.app.goo.gl/FVAsNU2pNyMvT4ZR8",
   },
   {
@@ -1430,17 +1066,20 @@ const services: SeedService[] = [
     category_id: "cat-kids",
     name: "Kidzania (UBBO)",
     details: "Pricey but nice — all ages",
+    address: "KidZania, UBBO, Amadora, Portugal",
   },
   {
     id: "svc-jumpyard",
     category_id: "cat-kids",
     name: "Jump Yard (Lisboa)",
+    address: "Jump Yard, Lisboa, Portugal",
     url: "https://maps.app.goo.gl/u1PE9Hqdn7f911tY7",
   },
   {
     id: "svc-ninja",
     category_id: "cat-kids",
     name: "Ninja Factory",
+    address: "Ninja Factory, Portugal",
     url: "https://maps.app.goo.gl/tS7E2FXyMJaDcypQ6",
   },
   {
@@ -1448,12 +1087,14 @@ const services: SeedService[] = [
     category_id: "cat-kids",
     name: "Quantum Park (Sintra)",
     details: "All ages",
+    address: "Quantum Park, Sintra, Portugal",
     url: "https://maps.app.goo.gl/jjXwSww4SWqpeafLA",
   },
   {
     id: "svc-quantum-almada",
     category_id: "cat-kids",
     name: "Quantum Park (Almada)",
+    address: "Quantum Park, Almada, Portugal",
     url: "https://maps.app.goo.gl/CvmHHsof8RDYQx57A",
   },
   {
@@ -1461,6 +1102,7 @@ const services: SeedService[] = [
     category_id: "cat-kids",
     name: "Parkour Alfragide",
     details: ">10yrs old",
+    address: "Parkour Alfragide, Portugal",
     url: "https://maps.app.goo.gl/nuJCz2gFw4pGqcfG8",
   },
   {
@@ -1468,12 +1110,14 @@ const services: SeedService[] = [
     category_id: "cat-kids",
     name: "Urban Park Ericeira",
     details: "Jump before 5pm — closest option",
+    address: "Urban Park Ericeira, Ericeira, Portugal",
   },
   {
     id: "svc-boulder",
     category_id: "cat-kids",
     name: "Ericeira Boulder",
     details: "Climbing — closest option in Ericeira",
+    address: "Ericeira Boulder, Ericeira, Portugal",
   },
 ];
 
@@ -1483,8 +1127,8 @@ export function seedDatabase(db: Database.Database) {
      VALUES (@id, @name, @slug, @description, @icon, @sort_order)`
   );
   const insertSvc = db.prepare(
-    `INSERT INTO services (id, category_id, name, details, phone, email, url, votes, status, created_at, proposed_by)
-     VALUES (@id, @category_id, @name, @details, @phone, @email, @url, 0, 'approved', @created_at, '')`
+    `INSERT INTO services (id, category_id, name, details, address, phone, email, url, kind, steps, specialty, votes, status, created_at, proposed_by)
+     VALUES (@id, @category_id, @name, @details, @address, @phone, @email, @url, 'contact', '', @specialty, 0, 'approved', @created_at, '')`
   );
 
   const now = new Date().toISOString();
@@ -1493,14 +1137,30 @@ export function seedDatabase(db: Database.Database) {
     for (const s of services) {
       insertSvc.run({
         id: s.id,
-        category_id: s.category_id,
+        category_id: CATEGORY_REMAP[s.category_id] || s.category_id,
         name: s.name,
         details: s.details || "",
+        address: s.address || "",
         phone: s.phone || "",
         email: s.email || "",
         url: s.url || "",
+        specialty: SPECIALTY_BY_SERVICE_ID[s.id] || "",
         created_at: now,
       });
+    }
+  });
+  tx();
+}
+
+/** Backfill / refresh Maps-ready addresses on existing databases. */
+export function enrichServiceAddresses(db: Database.Database) {
+  const update = db.prepare(
+    `UPDATE services SET address = ? WHERE id = ? AND (address IS NULL OR address = '' OR address != ?)`
+  );
+  const tx = db.transaction(() => {
+    for (const s of services) {
+      if (!s.address) continue;
+      update.run(s.address, s.id, s.address);
     }
   });
   tx();

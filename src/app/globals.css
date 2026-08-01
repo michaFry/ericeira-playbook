@@ -1,14 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --ocean-deep: #053542;
-  --ocean: #0d6170;
-  --wave: #2a8f8c;
-  --foam: #eef6f4;
-  --sand-light: #f3eee4;
-  --sun: #e8a04a;
-  --coral: #d96b52;
-  --ink: #14323a;
+  --ocean-deep: #042a35;
+  --ocean: #0a5563;
+  --wave: #1f7a78;
+  --foam: #f4faf8;
+  --sand-light: #f7f3ea;
+  --sun: #c9842a;
+  --coral: #c45a42;
+  --ink: #0c2228;
+  --ink-muted: #3d555c;
+  --ink-soft: #5a6f75;
+  --surface: #ffffff;
   --mist: rgba(255, 255, 255, 0.14);
   --background: var(--foam);
   --foreground: var(--ink);
@@ -29,6 +32,9 @@
   --color-sun: var(--sun);
   --color-coral: var(--coral);
   --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-soft: var(--ink-soft);
+  --color-surface: var(--surface);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
 }
@@ -39,18 +45,27 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
   margin: 0;
   min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   color: var(--ink);
   background:
-    radial-gradient(ellipse 70% 45% at 8% -8%, rgba(42, 143, 140, 0.22), transparent 55%),
-    radial-gradient(ellipse 50% 35% at 92% 4%, rgba(232, 160, 74, 0.18), transparent 48%),
-    linear-gradient(180deg, #d5ebe6 0%, var(--foam) 42%, #eef4f2 100%);
+    radial-gradient(ellipse 70% 40% at 10% -5%, rgba(10, 85, 99, 0.08), transparent 55%),
+    radial-gradient(ellipse 50% 30% at 90% 0%, rgba(201, 132, 42, 0.08), transparent 48%),
+    linear-gradient(180deg, #e8f2f0 0%, #f5f9f8 40%, #ffffff 100%);
   font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 500;
+  line-height: 1.55;
   text-wrap: pretty;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: rgba(10, 85, 99, 0.12);
+  touch-action: manipulation;
 }
 
 body::before {
@@ -58,7 +73,7 @@ body::before {
   pointer-events: none;
   position: fixed;
   inset: 0;
-  opacity: 0.04;
+  opacity: 0.018;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   z-index: var(--z-overlay);
 }
@@ -68,12 +83,18 @@ h2,
 h3,
 .font-display {
   font-family: var(--font-display), Georgia, serif;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
+h1,
+h2,
+h3 {
+  color: var(--ink);
+}
+
 :focus-visible {
-  outline: 2px solid var(--sun);
+  outline: 2px solid var(--ocean);
   outline-offset: 3px;
 }
 
@@ -122,7 +143,7 @@ h3,
 .wave-strip {
   height: 40px;
   overflow: hidden;
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 .wave-strip svg {
@@ -142,20 +163,41 @@ h3,
   transform: scale(0.98) translateY(1px);
 }
 
-.chip-scroll {
-  display: flex;
-  gap: 0.6rem;
-  overflow-x: auto;
-  padding-bottom: 0.4rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(13, 97, 112, 0.25) transparent;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-rise,
+  .wave-strip svg {
+    animation: none !important;
+  }
+
+  .pressable {
+    transition: none;
+  }
+
+  .pressable:active {
+    transform: none;
+  }
 }
 
-.chip-scroll::-webkit-scrollbar {
-  height: 6px;
+/* Leaflet map pins */
+.playbook-map-pin {
+  background: transparent !important;
+  border: none !important;
 }
 
-.chip-scroll::-webkit-scrollbar-thumb {
-  background: rgba(13, 97, 112, 0.25);
-  border-radius: 999px;
+.leaflet-container {
+  font: inherit;
+  background: #dce8e6;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(5, 53, 66, 0.18);
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px;
 }

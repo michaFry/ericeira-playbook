@@ -1,8 +1,24 @@
 import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
-import { seedDatabase } from "./seed-data";
-import type { Category, Service, ServiceWithCategory } from "./types";
+import { applyBusinessEnrichment } from "./business-enrichment";
+import { applyCategoryRestructure } from "./category-restructure";
+import { applyCoordEnrichment } from "./coord-enrichment";
+import { ensureCuratedContacts } from "./contact-ensure";
+import { applyDescriptionEnrichment } from "./description-enrichment";
+import { applyProcedureEnrichment } from "./procedure-enrichment";
+import { REPORT_AUTO_HIDE_AFTER } from "./reports";
+import { enrichServiceAddresses, seedDatabase } from "./seed-data";
+import { applySpecialtyEnrichment } from "./specialty-enrichment";
+import type {
+  Category,
+  ClickKind,
+  Report,
+  Service,
+  ServiceClickStats,
+  ServiceReportSummary,
+  ServiceWithCategory,
+} from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "playbook.db");
@@ -28,9 +44,22 @@ function createSchema(db: Database.Database) {
       category_id TEXT NOT NULL,
       name TEXT NOT NULL,
       details TEXT NOT NULL DEFAULT '',
+      address TEXT NOT NULL DEFAULT '',
       phone TEXT NOT NULL DEFAULT '',
       email TEXT NOT NULL DEFAULT '',
       url TEXT NOT NULL DEFAULT '',
+      hours TEXT NOT NULL DEFAULT '',
+      rating REAL,
+      reviews_count INTEGER NOT NULL DEFAULT 0,
+      google_note TEXT NOT NULL DEFAULT '',
+      languages TEXT NOT NULL DEFAULT '',
+      kind TEXT NOT NULL DEFAULT 'contact',
+      steps TEXT NOT NULL DEFAULT '',
+      specialty TEXT NOT NULL DEFAULT '',
+      lat REAL,
+      lng REAL,
+      place_id TEXT NOT NULL DEFAULT '',
+      google_enriched_at TEXT NOT NULL DEFAULT '',
       votes INTEGER NOT NULL DEFAULT 0,
       status TEXT NOT NULL DEFAULT 'approved',
       created_at TEXT NOT NULL,
@@ -47,13 +76,46 @@ function createSchema(db: Database.Database) {
       FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS reports (
+      id TEXT PRIMARY KEY,
+      service_id TEXT NOT NULL,
+      reporter_key TEXT NOT NULL,
+      reason TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL,
+      UNIQUE(service_id, reporter_key),
+      FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS clicks (
+      id TEXT PRIMARY KEY,
+      service_id TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_services_category ON services(category_id);
     CREATE INDEX IF NOT EXISTS idx_services_status ON services(status);
+    CREATE INDEX IF NOT EXISTS idx_reports_service ON reports(service_id);
+    CREATE INDEX IF NOT EXISTS idx_clicks_service ON clicks(service_id);
+    CREATE INDEX IF NOT EXISTS idx_clicks_kind ON clicks(kind);
   `);
 }
 
 export function getDb() {
-  if (global.__playbookDb) return global.__playbookDb;
+  if (global.__playbookDb) {
+    migrateSchema(global.__playbookDb);
+    applyCategoryRestructure(global.__playbookDb);
+    // Re-apply curated facts so enrichment file updates land without restart.
+    applyBusinessEnrichment(global.__playbookDb);
+    applyProcedureEnrichment(global.__playbookDb);
+    applySpecialtyEnrichment(global.__playbookDb);
+    ensureCuratedContacts(global.__playbookDb);
+    applyCoordEnrichment(global.__playbookDb);
+    applyBusinessEnrichment(global.__playbookDb);
+    applyDescriptionEnrichment(global.__playbookDb);
+    return global.__playbookDb;
+  }
 
   fs.mkdirSync(DATA_DIR, { recursive: true });
   const isNew = !fs.existsSync(DB_PATH);
@@ -61,6 +123,7 @@ export function getDb() {
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
   createSchema(db);
+  migrateSchema(db);
 
   if (isNew) {
     seedDatabase(db);
@@ -71,8 +134,90 @@ export function getDb() {
     if (count.c === 0) seedDatabase(db);
   }
 
+  enrichServiceAddresses(db);
+  applyCategoryRestructure(db);
+  applyBusinessEnrichment(db);
+  applyProcedureEnrichment(db);
+  applySpecialtyEnrichment(db);
+  ensureCuratedContacts(db);
+  applyCoordEnrichment(db);
+  applyBusinessEnrichment(db);
+  applyDescriptionEnrichment(db);
+  autoHideHeavilyReportedContacts(db);
+
   global.__playbookDb = db;
   return db;
+}
+
+function migrateSchema(db: Database.Database) {
+  const cols = (
+    db.prepare("PRAGMA table_info(services)").all() as { name: string }[]
+  ).map((c) => c.name);
+
+  const add = (name: string, ddl: string) => {
+    if (!cols.includes(name)) db.exec(ddl);
+  };
+
+  add("address", `ALTER TABLE services ADD COLUMN address TEXT NOT NULL DEFAULT ''`);
+  add("hours", `ALTER TABLE services ADD COLUMN hours TEXT NOT NULL DEFAULT ''`);
+  add("rating", `ALTER TABLE services ADD COLUMN rating REAL`);
+  add(
+    "reviews_count",
+    `ALTER TABLE services ADD COLUMN reviews_count INTEGER NOT NULL DEFAULT 0`
+  );
+  add(
+    "google_note",
+    `ALTER TABLE services ADD COLUMN google_note TEXT NOT NULL DEFAULT ''`
+  );
+  add(
+    "languages",
+    `ALTER TABLE services ADD COLUMN languages TEXT NOT NULL DEFAULT ''`
+  );
+  add(
+    "kind",
+    `ALTER TABLE services ADD COLUMN kind TEXT NOT NULL DEFAULT 'contact'`
+  );
+  add(
+    "steps",
+    `ALTER TABLE services ADD COLUMN steps TEXT NOT NULL DEFAULT ''`
+  );
+  add(
+    "specialty",
+    `ALTER TABLE services ADD COLUMN specialty TEXT NOT NULL DEFAULT ''`
+  );
+  add("lat", `ALTER TABLE services ADD COLUMN lat REAL`);
+  add("lng", `ALTER TABLE services ADD COLUMN lng REAL`);
+  add(
+    "place_id",
+    `ALTER TABLE services ADD COLUMN place_id TEXT NOT NULL DEFAULT ''`
+  );
+  add(
+    "google_enriched_at",
+    `ALTER TABLE services ADD COLUMN google_enriched_at TEXT NOT NULL DEFAULT ''`
+  );
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS reports (
+      id TEXT PRIMARY KEY,
+      service_id TEXT NOT NULL,
+      reporter_key TEXT NOT NULL,
+      reason TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL,
+      UNIQUE(service_id, reporter_key),
+      FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_reports_service ON reports(service_id);
+
+    CREATE TABLE IF NOT EXISTS clicks (
+      id TEXT PRIMARY KEY,
+      service_id TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_clicks_service ON clicks(service_id);
+    CREATE INDEX IF NOT EXISTS idx_clicks_kind ON clicks(kind);
+  `);
 }
 
 export function listCategories(): Category[] {
@@ -126,4 +271,104 @@ export function getServiceById(id: string): Service | undefined {
   return getDb().prepare("SELECT * FROM services WHERE id = ?").get(id) as
     | Service
     | undefined;
+}
+
+/**
+ * Hide approved contacts that already have more than REPORT_AUTO_HIDE_AFTER
+ * private reports. Keeps the row; only unpublishes.
+ */
+export function autoHideHeavilyReportedContacts(
+  db: Database.Database = getDb()
+): number {
+  const result = db
+    .prepare(
+      `UPDATE services
+       SET status = 'hidden'
+       WHERE status = 'approved'
+         AND COALESCE(kind, 'contact') = 'contact'
+         AND id IN (
+           SELECT service_id FROM reports
+           GROUP BY service_id
+           HAVING COUNT(*) > ?
+         )`
+    )
+    .run(REPORT_AUTO_HIDE_AFTER);
+  return result.changes;
+}
+
+/** Count private reports for one service. */
+export function countReportsForService(serviceId: string): number {
+  const row = getDb()
+    .prepare("SELECT COUNT(*) as c FROM reports WHERE service_id = ?")
+    .get(serviceId) as { c: number };
+  return row.c;
+}
+
+/** Aggregated private reports for admin — never exposed on public routes. */
+export function listReportSummaries(): ServiceReportSummary[] {
+  const db = getDb();
+  const counts = db
+    .prepare(
+      `SELECT s.id as service_id, s.name as service_name, s.status,
+              c.name as category_name, COUNT(r.id) as report_count
+       FROM reports r
+       JOIN services s ON s.id = r.service_id
+       JOIN categories c ON c.id = s.category_id
+       GROUP BY s.id
+       ORDER BY report_count DESC, s.name ASC`
+    )
+    .all() as Omit<ServiceReportSummary, "reports">[];
+
+  const reportsByService = db
+    .prepare(
+      `SELECT id, service_id, reporter_key, reason, created_at
+       FROM reports ORDER BY created_at DESC`
+    )
+    .all() as Report[];
+
+  const grouped = new Map<string, Report[]>();
+  for (const r of reportsByService) {
+    const list = grouped.get(r.service_id) || [];
+    list.push(r);
+    grouped.set(r.service_id, list);
+  }
+
+  return counts.map((c) => ({
+    ...c,
+    reports: grouped.get(c.service_id) || [],
+  }));
+}
+
+const CLICK_KINDS: ClickKind[] = ["phone", "address", "email", "url"];
+
+export function recordClick(serviceId: string, kind: ClickKind): void {
+  if (!CLICK_KINDS.includes(kind)) return;
+  getDb()
+    .prepare(
+      `INSERT INTO clicks (id, service_id, kind, created_at) VALUES (?, ?, ?, ?)`
+    )
+    .run(crypto.randomUUID(), serviceId, kind, new Date().toISOString());
+}
+
+/** Top clicked services for admin (default top 10). */
+export function listTopClickedServices(limit = 10): ServiceClickStats[] {
+  return getDb()
+    .prepare(
+      `SELECT s.id as service_id,
+              s.name as service_name,
+              s.status,
+              c.name as category_name,
+              COUNT(cl.id) as total_clicks,
+              SUM(CASE WHEN cl.kind = 'phone' THEN 1 ELSE 0 END) as phone_clicks,
+              SUM(CASE WHEN cl.kind = 'address' THEN 1 ELSE 0 END) as address_clicks,
+              SUM(CASE WHEN cl.kind = 'email' THEN 1 ELSE 0 END) as email_clicks,
+              SUM(CASE WHEN cl.kind = 'url' THEN 1 ELSE 0 END) as url_clicks
+       FROM clicks cl
+       JOIN services s ON s.id = cl.service_id
+       JOIN categories c ON c.id = s.category_id
+       GROUP BY s.id
+       ORDER BY total_clicks DESC, s.name ASC
+       LIMIT ?`
+    )
+    .all(limit) as ServiceClickStats[];
 }

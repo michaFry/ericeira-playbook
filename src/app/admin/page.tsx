@@ -2,13 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CategoriesAdmin, ServicesAdmin, inputClass } from "@/components/AdminPanels";
-import type { Category, ServiceWithCategory } from "@/lib/types";
+import {
+  CategoriesAdmin,
+  ServicesAdmin,
+  inputClass,
+} from "@/components/AdminPanels";
+import { ReportsAdmin } from "@/components/ReportsAdmin";
+import { ClicksAdmin } from "@/components/ClicksAdmin";
+import type {
+  Category,
+  ServiceClickStats,
+  ServiceReportSummary,
+  ServiceWithCategory,
+} from "@/lib/types";
 
 type AdminData = {
   categories: Category[];
   services: ServiceWithCategory[];
   pending: ServiceWithCategory[];
+  reports: ServiceReportSummary[];
+  clickStats: ServiceClickStats[];
 };
 
 export default function AdminPage() {
@@ -16,9 +29,9 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [data, setData] = useState<AdminData | null>(null);
-  const [tab, setTab] = useState<"pending" | "services" | "categories">(
-    "pending"
-  );
+  const [tab, setTab] = useState<
+    "pending" | "reports" | "clicks" | "services" | "categories"
+  >("pending");
   const [message, setMessage] = useState("");
 
   async function load() {
@@ -118,6 +131,12 @@ export default function AdminPage() {
 
   if (!data) return null;
 
+  const reportTotal = data.reports.reduce((n, r) => n + r.report_count, 0);
+  const clickTotal = (data.clickStats || []).reduce(
+    (n, s) => n + s.total_clicks,
+    0
+  );
+
   return (
     <main className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
@@ -146,6 +165,8 @@ export default function AdminPage() {
         {(
           [
             ["pending", `Proposals (${data.pending.length})`],
+            ["reports", `Private notes (${reportTotal})`],
+            ["clicks", `Top clicks (${clickTotal})`],
             ["services", `Services (${data.services.length})`],
             ["categories", `Categories (${data.categories.length})`],
           ] as const
@@ -224,6 +245,14 @@ export default function AdminPage() {
             </div>
           ))}
         </section>
+      )}
+
+      {tab === "reports" && (
+        <ReportsAdmin reports={data.reports || []} onAction={adminAction} />
+      )}
+
+      {tab === "clicks" && (
+        <ClicksAdmin stats={data.clickStats || []} />
       )}
 
       {tab === "services" && (
