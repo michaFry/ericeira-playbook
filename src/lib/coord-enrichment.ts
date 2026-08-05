@@ -37,6 +37,7 @@ export const COORD_BY_SERVICE_ID: Record<string, { lat: number; lng: number }> =
     // Cars (in / near Ericeira)
     "svc-auto-miramar": { lat: 38.955, lng: -9.408 },
     "svc-ouriceira": { lat: 38.9639, lng: -9.4128 },
+    "svc-hf-henrique-ferreira": { lat: 38.9597, lng: -9.4146 },
     // Kids
     "svc-urban-park": { lat: 38.961, lng: -9.412 },
     "svc-boulder": { lat: 38.9648, lng: -9.4135 },

@@ -347,6 +347,19 @@ export const BUSINESS_ENRICHMENTS: BusinessEnrichment[] = [
     google_note: "Dental clinic in Mafra.",
     languages: "pt",
   },
+  {
+    id: "svc-hf-henrique-ferreira",
+    name: "HF Henrique Ferreira — Peças Auto",
+    details:
+      "Auto parts & accessories shop — brakes, filters, oils (Valvoline), batteries, and more. Ericeira branch (also Malveira).",
+    phone: "+351 261 866 039",
+    address: "N247 5, 2655-368 Ericeira, Portugal",
+    url: "https://maps.app.goo.gl/vx8tMHyrFd8ekiBy8",
+    hours: "Mon–Fri 09:00–13:00 & 14:00–19:30 · Sat 09:00–13:00",
+    languages: "pt",
+    google_note:
+      "HF Peças Auto — auto parts retailer. Alt. mobile: +351 965 125 145 · hf-pecasauto.pt",
+  },
 ];
 
 /** Spoken languages from the playbook (and phone-country hints). */
@@ -378,6 +391,7 @@ const LANGUAGE_BY_ID: Record<string, string> = {
   "svc-fernando-plumb": "pt",
   "svc-miguel-plumb": "pt",
   "svc-rui-tyre": "pt",
+  "svc-hf-henrique-ferreira": "pt",
   "svc-garage-isidoro": "pt",
   "svc-rui-fortunato": "pt",
   "svc-transfonseca": "pt",

@@ -101,6 +101,20 @@ export const CURATED_CONTACTS: CuratedContact[] = [
     languages: "en,pt",
     specialty: "physio",
   },
+  {
+    id: "svc-hf-henrique-ferreira",
+    category_id: "cat-cars",
+    name: "HF Henrique Ferreira — Peças Auto",
+    details:
+      "Auto parts & accessories — Ericeira branch (also Malveira).",
+    address: "N247 5, 2655-368 Ericeira, Portugal",
+    phone: "+351 261 866 039",
+    url: "https://maps.app.goo.gl/vx8tMHyrFd8ekiBy8",
+    languages: "pt",
+    specialty: "auto_parts",
+    lat: 38.9597,
+    lng: -9.4146,
+  },
 ];
 
 export function ensureCuratedContacts(db: Database.Database) {

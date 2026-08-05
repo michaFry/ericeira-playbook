@@ -6,6 +6,7 @@ import {
   Blinds,
   Bone,
   BrickWall,
+  Car,
   CloudRain,
   Cross,
   DoorClosed,
@@ -27,6 +28,8 @@ import {
 } from "lucide-react";
 
 export type SpecialtyId =
+  // Cars
+  | "auto_parts"
   // Trades
   | "electrician"
   | "plumber"
@@ -70,6 +73,16 @@ export type SpecialtyDef = {
 };
 
 export const SPECIALTIES: Record<SpecialtyId, SpecialtyDef> = {
+  // —— Cars ——
+  auto_parts: {
+    id: "auto_parts",
+    label: "Auto parts",
+    short: "Parts",
+    icon: Car,
+    tone: "bg-blue-500/15 text-blue-900 ring-blue-500/25",
+    sort_order: 20,
+    groupHint: "Cars",
+  },
   // —— Trades ——
   electrician: {
     id: "electrician",
@@ -293,6 +306,8 @@ export const SPECIALTIES: Record<SpecialtyId, SpecialtyDef> = {
 export const SPECIALTY_OPTIONS = Object.values(SPECIALTIES).sort(
   (a, b) => a.sort_order - b.sort_order
 );
+
+export const CARS_SPECIALTY_IDS: SpecialtyId[] = ["auto_parts"];
 
 export const TRADE_SPECIALTY_IDS: SpecialtyId[] = [
   "electrician",

@@ -94,6 +94,15 @@ const services: SeedService[] = [
     details: "Warranty service for used cars",
     url: "https://rpmgarantie.pt/",
   },
+  {
+    id: "svc-hf-henrique-ferreira",
+    category_id: "cat-mechanic",
+    name: "HF Henrique Ferreira — Peças Auto",
+    details: "Auto parts & accessories — Ericeira branch (also Malveira).",
+    address: "N247 5, 2655-368 Ericeira, Portugal",
+    phone: "+351 261 866 039",
+    url: "https://maps.app.goo.gl/vx8tMHyrFd8ekiBy8",
+  },
   // Car registration
   {
     id: "svc-irn-mafra",

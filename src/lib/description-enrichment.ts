@@ -58,6 +58,8 @@ export const DESCRIPTION_BY_ID: Record<string, string> = {
   "svc-transfonseca": "Car transport / services — Mafra.",
   "svc-ouriceira": "Car garage — Ericeira.",
   "svc-rpm": "Used-car warranty service.",
+  "svc-hf-henrique-ferreira":
+    "Auto parts & accessories — brakes, filters, oils (Valvoline), batteries, and more. Ericeira branch.",
   "svc-sell-car": "Sells your car for a fixed fee.",
   "svc-acp": "Car import paperwork via ACP membership.",
 

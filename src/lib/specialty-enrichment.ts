@@ -5,6 +5,9 @@ import type Database from "better-sqlite3";
 import type { SpecialtyId } from "./specialties";
 
 export const SPECIALTY_BY_SERVICE_ID: Record<string, SpecialtyId> = {
+  // Cars
+  "svc-hf-henrique-ferreira": "auto_parts",
+
   // Electricians
   "svc-bogdan": "electrician",
   "svc-miguel-elec": "electrician",
