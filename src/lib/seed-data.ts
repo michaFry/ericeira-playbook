@@ -871,6 +871,14 @@ const services: SeedService[] = [
       "Pollination services for fruit trees in Ericeira/Mafra area. Also collects swarms from unwanted places.",
     phone: "+351 913 901 318",
   },
+  {
+    id: "svc-diogo-apicultor",
+    category_id: "cat-beekeeping",
+    name: "Diogo Apicultor",
+    details:
+      "Beekeeper — pollination & swarm help. Also tree cutting / pruning (coupe d'arbres). Comes to you.",
+    phone: "+351 967 253 780",
+  },
   // Derm
   {
     id: "svc-derm-lisbon",

@@ -69,6 +69,7 @@ export const CURATED_CONTACTS: CuratedContact[] = [
       "Garden maintenance / landscaping (jardinagem) — recommended in the dads playbook.",
     phone: "+351 936 027 031",
     languages: "pt",
+    specialty: "gardening",
   },
   {
     id: "svc-joviplant",
@@ -78,6 +79,7 @@ export const CURATED_CONTACTS: CuratedContact[] = [
       "Nursery for buying trees in bulk — often far cheaper than Ericeira prices.",
     phone: "+351 966 671 590",
     languages: "pt",
+    specialty: "tree_nursery",
   },
   {
     id: "svc-beekeeper",
@@ -87,6 +89,17 @@ export const CURATED_CONTACTS: CuratedContact[] = [
       "Pollination for fruit trees (Ericeira / Mafra). Also collects swarms from unwanted places.",
     phone: "+351 913 901 318",
     languages: "pt,en",
+    specialty: "beekeeping",
+  },
+  {
+    id: "svc-diogo-apicultor",
+    category_id: "cat-garden",
+    name: "Diogo Apicultor",
+    details:
+      "Beekeeper — pollination & swarm help. Also tree cutting / pruning. Comes to you.",
+    phone: "+351 967 253 780",
+    languages: "pt",
+    specialty: "beekeeping",
   },
   {
     id: "svc-prehab",

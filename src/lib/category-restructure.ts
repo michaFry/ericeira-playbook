@@ -82,7 +82,7 @@ export const OPTIMIZED_CATEGORIES = [
     name: "Garden & outdoors",
     slug: "garden-outdoors",
     description:
-      "Jardinagem, soil, trees (often cheaper outside Ericeira), and beekeeping / swarm help.",
+      "Jardinagem, soil, trees (often cheaper outside Ericeira), beekeeping / swarm help, and tree cutting.",
     icon: "Flower2",
     sort_order: 80,
   },

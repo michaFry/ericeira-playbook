@@ -142,6 +142,8 @@ export const DESCRIPTION_BY_ID: Record<string, string> = {
   "svc-terrum": "Gardening / landscaping.",
   "svc-joviplant": "Nursery — trees in bulk, often cheaper than Ericeira.",
   "svc-beekeeper": "Beekeeper — pollination & swarm help.",
+  "svc-diogo-apicultor":
+    "Beekeeper — pollination & swarms. Also tree cutting / pruning.",
 
   // Stones / materials (now under wood & materials)
   "svc-mpsseixo": "Stone supplier — materials for builds & counters.",

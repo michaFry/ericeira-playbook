@@ -85,6 +85,12 @@ export const SPECIALTY_BY_SERVICE_ID: Record<string, SpecialtyId> = {
   "svc-windoor": "windows_doors",
   "svc-supercaleiras": "gutters",
   "svc-isolaterm": "insulation",
+
+  // Garden & outdoors
+  "svc-terrum": "gardening",
+  "svc-joviplant": "tree_nursery",
+  "svc-beekeeper": "beekeeping",
+  "svc-diogo-apicultor": "beekeeping",
 };
 
 export function applySpecialtyEnrichment(db: Database.Database) {

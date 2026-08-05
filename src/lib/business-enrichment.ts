@@ -443,6 +443,7 @@ const LANGUAGE_BY_ID: Record<string, string> = {
   "svc-dale": "en,pt",
   "svc-benedita": "pt",
   "svc-beekeeper": "pt",
+  "svc-diogo-apicultor": "pt",
   "svc-johnny": "pt",
   "svc-ferretti": "pt,en",
   "svc-carla": "pt,en",

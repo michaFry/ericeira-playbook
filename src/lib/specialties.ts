@@ -13,6 +13,7 @@ import {
   Droplets,
   Dumbbell,
   Fence,
+  Flower2,
   Hammer,
   Hand,
   Layers,
@@ -59,7 +60,12 @@ export type SpecialtyId =
   | "shutters"
   | "windows_doors"
   | "gutters"
-  | "insulation";
+  | "insulation"
+  // Garden & outdoors
+  | "gardening"
+  | "tree_nursery"
+  | "beekeeping"
+  | "tree_cutting";
 
 export type SpecialtyDef = {
   id: SpecialtyId;
@@ -312,11 +318,55 @@ export const SPECIALTIES: Record<SpecialtyId, SpecialtyDef> = {
     sort_order: 360,
     groupHint: "Exterior",
   },
+  // —— Garden & outdoors ——
+  gardening: {
+    id: "gardening",
+    label: "Gardening",
+    short: "Garden",
+    icon: Flower2,
+    tone: "bg-emerald-500/15 text-emerald-900 ring-emerald-500/25",
+    sort_order: 410,
+    groupHint: "Garden",
+  },
+  tree_nursery: {
+    id: "tree_nursery",
+    label: "Tree nursery",
+    short: "Nursery",
+    icon: TreePine,
+    tone: "bg-green-700/15 text-green-950 ring-green-700/25",
+    sort_order: 420,
+    groupHint: "Garden",
+  },
+  beekeeping: {
+    id: "beekeeping",
+    label: "Beekeeping",
+    short: "Bees",
+    icon: Flower2,
+    tone: "bg-amber-400/20 text-amber-950 ring-amber-500/30",
+    sort_order: 430,
+    groupHint: "Garden",
+  },
+  tree_cutting: {
+    id: "tree_cutting",
+    label: "Tree cutting",
+    short: "Trees",
+    icon: Axe,
+    tone: "bg-lime-700/15 text-lime-950 ring-lime-700/25",
+    sort_order: 440,
+    groupHint: "Garden",
+  },
 };
 
 export const SPECIALTY_OPTIONS = Object.values(SPECIALTIES).sort(
   (a, b) => a.sort_order - b.sort_order
 );
+
+export const GARDEN_SPECIALTY_IDS: SpecialtyId[] = [
+  "gardening",
+  "tree_nursery",
+  "beekeeping",
+  "tree_cutting",
+];
 
 export const CARS_SPECIALTY_IDS: SpecialtyId[] = ["auto_parts", "mobile_car_wash"];
 
