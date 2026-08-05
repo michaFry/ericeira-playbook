@@ -22,7 +22,7 @@ export function ClicksAdmin({ stats }: { stats: ServiceClickStats[] }) {
     <section className="space-y-4">
       <p className="rounded-xl bg-foam px-4 py-3 text-sm text-ink-muted ring-1 ring-ocean/10">
         Top 10 most clicked contacts · {totalAll} tracked click
-        {totalAll === 1 ? "" : "s"} total (phone, address, email, link).
+        {totalAll === 1 ? "" : "s"} total (phone, WhatsApp, address, email, link).
       </p>
 
       <ol className="space-y-3">
@@ -64,6 +64,11 @@ export function ClicksAdmin({ stats }: { stats: ServiceClickStats[] }) {
                       <span className="inline-flex items-center gap-1 rounded-lg bg-foam px-2 py-1 text-ink-muted ring-1 ring-ocean/10">
                         <Phone className="h-3.5 w-3.5" />
                         {item.phone_clicks} phone
+                      </span>
+                    )}
+                    {item.whatsapp_clicks > 0 && (
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-[#25D366]/10 px-2 py-1 text-[#128C7E] ring-1 ring-[#25D366]/20">
+                        {item.whatsapp_clicks} WhatsApp
                       </span>
                     )}
                     {item.address_clicks > 0 && (

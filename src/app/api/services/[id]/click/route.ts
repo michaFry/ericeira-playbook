@@ -4,10 +4,10 @@ import type { ClickKind } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-const ALLOWED: ClickKind[] = ["phone", "address", "email", "url"];
+const ALLOWED: ClickKind[] = ["phone", "whatsapp", "address", "email", "url"];
 
 /**
- * Public click beacon for phone / address / email / link.
+ * Public click beacon for phone / WhatsApp / address / email / link.
  * Fire-and-forget from the client — does not block navigation.
  */
 export async function POST(

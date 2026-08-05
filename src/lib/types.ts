@@ -62,7 +62,7 @@ export type ServiceReportSummary = {
   reports: Report[];
 };
 
-export type ClickKind = "phone" | "address" | "email" | "url";
+export type ClickKind = "phone" | "whatsapp" | "address" | "email" | "url";
 
 /** Admin-only click analytics. */
 export type ServiceClickStats = {
@@ -72,6 +72,7 @@ export type ServiceClickStats = {
   status: Service["status"];
   total_clicks: number;
   phone_clicks: number;
+  whatsapp_clicks: number;
   address_clicks: number;
   email_clicks: number;
   url_clicks: number;

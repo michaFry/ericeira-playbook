@@ -17,9 +17,10 @@ import { LanguageFlags } from "./LanguageFlags";
 import { SpecialtyBadge } from "./SpecialtyBadge";
 import { mapsSearchUrl } from "@/lib/maps";
 import { toMailtoHref } from "@/lib/email";
-import { toTelHref } from "@/lib/phone";
+import { toTelHref, toWhatsAppHref } from "@/lib/phone";
 import { trackClick } from "@/lib/track-click";
 import type { ServiceWithCategory, VoteNotePublic } from "@/lib/types";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 
 export function ContactCard({
   service,
@@ -42,6 +43,7 @@ export function ContactCard({
 }) {
   const [notesOpen, setNotesOpen] = useState(false);
   const phoneHref = service.phone ? toTelHref(service.phone) : null;
+  const whatsappHref = service.phone ? toWhatsAppHref(service.phone) : null;
   const mailHref = toMailtoHref(service.email);
 
   return (
@@ -130,6 +132,20 @@ export function ContactCard({
               >
                 <Phone className="h-3.5 w-3.5" aria-hidden />
                 {service.phone}
+              </a>
+            )}
+            {whatsappHref && (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => trackClick(service.id, "whatsapp")}
+                className="pressable inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-[#25D366]/15 px-3 py-2 text-xs font-semibold text-[#128C7E] ring-1 ring-[#25D366]/30 sm:min-h-0 sm:px-2.5 sm:py-1.5"
+                aria-label={`WhatsApp ${service.phone}`}
+                title={`WhatsApp ${service.phone}`}
+              >
+                <WhatsAppIcon className="h-3.5 w-3.5" />
+                WhatsApp
               </a>
             )}
             {mailHref && (

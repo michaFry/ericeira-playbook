@@ -12,3 +12,14 @@ export function toTelHref(phone: string): string | null {
 
   return `tel:${hasPlus ? "+" : ""}${digits}`;
 }
+
+/** Build a WhatsApp chat link from a displayed phone string. */
+export function toWhatsAppHref(phone: string): string | null {
+  const raw = phone.trim();
+  if (!raw) return null;
+
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length < 6) return null;
+
+  return `https://wa.me/${digits}`;
+}

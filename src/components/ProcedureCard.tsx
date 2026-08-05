@@ -10,10 +10,11 @@ import {
 } from "lucide-react";
 import { LanguageFlags } from "./LanguageFlags";
 import { toMailtoHref } from "@/lib/email";
-import { toTelHref } from "@/lib/phone";
+import { toTelHref, toWhatsAppHref } from "@/lib/phone";
 import { parseSteps } from "@/lib/steps";
 import { trackClick } from "@/lib/track-click";
 import type { ServiceWithCategory } from "@/lib/types";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 
 export function ProcedureCard({
   service,
@@ -26,6 +27,7 @@ export function ProcedureCard({
 }) {
   const steps = parseSteps(service.steps);
   const phoneHref = service.phone ? toTelHref(service.phone) : null;
+  const whatsappHref = service.phone ? toWhatsAppHref(service.phone) : null;
   const mailHref = toMailtoHref(service.email);
   const panelId = useId();
   const [open, setOpen] = useState(defaultOpen || Boolean(highlight));
@@ -113,6 +115,20 @@ export function ProcedureCard({
                 >
                   <Phone className="h-3.5 w-3.5" aria-hidden />
                   {service.phone}
+                </a>
+              )}
+              {whatsappHref && (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => trackClick(service.id, "whatsapp")}
+                  className="pressable inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-[#25D366]/15 px-2.5 py-1.5 text-xs font-semibold text-[#128C7E] ring-1 ring-[#25D366]/30"
+                  aria-label={`WhatsApp ${service.phone}`}
+                  title={`WhatsApp ${service.phone}`}
+                >
+                  <WhatsAppIcon className="h-3.5 w-3.5" />
+                  WhatsApp
                 </a>
               )}
               {mailHref && (

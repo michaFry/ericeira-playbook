@@ -364,7 +364,7 @@ export function listReportSummaries(): ServiceReportSummary[] {
   }));
 }
 
-const CLICK_KINDS: ClickKind[] = ["phone", "address", "email", "url"];
+const CLICK_KINDS: ClickKind[] = ["phone", "whatsapp", "address", "email", "url"];
 
 export function recordClick(serviceId: string, kind: ClickKind): void {
   if (!CLICK_KINDS.includes(kind)) return;
@@ -385,6 +385,7 @@ export function listTopClickedServices(limit = 10): ServiceClickStats[] {
               c.name as category_name,
               COUNT(cl.id) as total_clicks,
               SUM(CASE WHEN cl.kind = 'phone' THEN 1 ELSE 0 END) as phone_clicks,
+              SUM(CASE WHEN cl.kind = 'whatsapp' THEN 1 ELSE 0 END) as whatsapp_clicks,
               SUM(CASE WHEN cl.kind = 'address' THEN 1 ELSE 0 END) as address_clicks,
               SUM(CASE WHEN cl.kind = 'email' THEN 1 ELSE 0 END) as email_clicks,
               SUM(CASE WHEN cl.kind = 'url' THEN 1 ELSE 0 END) as url_clicks
