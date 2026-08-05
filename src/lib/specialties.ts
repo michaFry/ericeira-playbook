@@ -21,6 +21,7 @@ import {
   Refrigerator,
   ScanFace,
   Smile,
+  Sparkles,
   Thermometer,
   TreePine,
   Truck,
@@ -30,6 +31,7 @@ import {
 export type SpecialtyId =
   // Cars
   | "auto_parts"
+  | "mobile_car_wash"
   // Trades
   | "electrician"
   | "plumber"
@@ -81,6 +83,15 @@ export const SPECIALTIES: Record<SpecialtyId, SpecialtyDef> = {
     icon: Car,
     tone: "bg-blue-500/15 text-blue-900 ring-blue-500/25",
     sort_order: 20,
+    groupHint: "Cars",
+  },
+  mobile_car_wash: {
+    id: "mobile_car_wash",
+    label: "Mobile car wash",
+    short: "Car wash",
+    icon: Sparkles,
+    tone: "bg-cyan-500/15 text-cyan-950 ring-cyan-500/25",
+    sort_order: 25,
     groupHint: "Cars",
   },
   // —— Trades ——
@@ -307,7 +318,7 @@ export const SPECIALTY_OPTIONS = Object.values(SPECIALTIES).sort(
   (a, b) => a.sort_order - b.sort_order
 );
 
-export const CARS_SPECIALTY_IDS: SpecialtyId[] = ["auto_parts"];
+export const CARS_SPECIALTY_IDS: SpecialtyId[] = ["auto_parts", "mobile_car_wash"];
 
 export const TRADE_SPECIALTY_IDS: SpecialtyId[] = [
   "electrician",

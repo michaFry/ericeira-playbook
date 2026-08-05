@@ -115,6 +115,17 @@ export const CURATED_CONTACTS: CuratedContact[] = [
     lat: 38.9597,
     lng: -9.4146,
   },
+  {
+    id: "svc-time-for-detail",
+    category_id: "cat-cars",
+    name: "Duarte — Time For Detail",
+    details: "Mobile car wash & detailing — comes to your home.",
+    phone: "+351 913 708 092",
+    email: "info@timefordetail.pt",
+    url: "https://www.timefordetail.pt",
+    languages: "pt,en",
+    specialty: "mobile_car_wash",
+  },
 ];
 
 export function ensureCuratedContacts(db: Database.Database) {

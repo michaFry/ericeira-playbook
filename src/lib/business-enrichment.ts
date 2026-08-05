@@ -360,6 +360,19 @@ export const BUSINESS_ENRICHMENTS: BusinessEnrichment[] = [
     google_note:
       "HF Peças Auto — auto parts retailer. Alt. mobile: +351 965 125 145 · hf-pecasauto.pt",
   },
+  {
+    id: "svc-time-for-detail",
+    name: "Duarte — Time For Detail",
+    details:
+      "Mobile car wash & detailing — lavagem automóvel ao domicílio. Cars, vans, and motorcycles.",
+    phone: "+351 913 708 092",
+    email: "info@timefordetail.pt",
+    url: "https://www.timefordetail.pt",
+    hours: "Typically 09:00–18:30 — message to book",
+    languages: "pt,en",
+    google_note:
+      "Time For Detail — mobile wash & detail. Instagram: @timefordetail",
+  },
 ];
 
 /** Spoken languages from the playbook (and phone-country hints). */
@@ -392,6 +405,7 @@ const LANGUAGE_BY_ID: Record<string, string> = {
   "svc-miguel-plumb": "pt",
   "svc-rui-tyre": "pt",
   "svc-hf-henrique-ferreira": "pt",
+  "svc-time-for-detail": "pt,en",
   "svc-garage-isidoro": "pt",
   "svc-rui-fortunato": "pt",
   "svc-transfonseca": "pt",

@@ -103,6 +103,15 @@ const services: SeedService[] = [
     phone: "+351 261 866 039",
     url: "https://maps.app.goo.gl/vx8tMHyrFd8ekiBy8",
   },
+  {
+    id: "svc-time-for-detail",
+    category_id: "cat-mechanic",
+    name: "Duarte — Time For Detail",
+    details: "Mobile car wash & detailing — comes to your home.",
+    phone: "+351 913 708 092",
+    email: "info@timefordetail.pt",
+    url: "https://www.timefordetail.pt",
+  },
   // Car registration
   {
     id: "svc-irn-mafra",

@@ -28,7 +28,7 @@ export const OPTIMIZED_CATEGORIES = [
     name: "Cars",
     slug: "cars",
     description:
-      "Import, selling, mechanics, tyres, auto parts, and updating your vehicle registration address.",
+      "Import, selling, mechanics, tyres, auto parts, mobile car wash, and updating your vehicle registration address.",
     icon: "Car",
     sort_order: 20,
   },

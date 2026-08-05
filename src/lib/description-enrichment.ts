@@ -60,6 +60,8 @@ export const DESCRIPTION_BY_ID: Record<string, string> = {
   "svc-rpm": "Used-car warranty service.",
   "svc-hf-henrique-ferreira":
     "Auto parts & accessories — brakes, filters, oils (Valvoline), batteries, and more. Ericeira branch.",
+  "svc-time-for-detail":
+    "Mobile car wash & detailing — lavagem automóvel ao domicílio.",
   "svc-sell-car": "Sells your car for a fixed fee.",
   "svc-acp": "Car import paperwork via ACP membership.",
 

@@ -7,6 +7,7 @@ import type { SpecialtyId } from "./specialties";
 export const SPECIALTY_BY_SERVICE_ID: Record<string, SpecialtyId> = {
   // Cars
   "svc-hf-henrique-ferreira": "auto_parts",
+  "svc-time-for-detail": "mobile_car_wash",
 
   // Electricians
   "svc-bogdan": "electrician",
