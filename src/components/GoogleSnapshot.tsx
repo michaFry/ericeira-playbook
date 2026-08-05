@@ -22,8 +22,8 @@ export function GoogleSnapshot({
         Listing snapshot
       </p>
       {hasRating && (
-        <div className="mb-1.5 flex items-center gap-1.5 text-sm font-bold text-ink">
-          <Star className="h-4 w-4 fill-sun text-sun" />
+        <div className="mb-1.5 flex items-center gap-1.5 text-sm font-bold text-ink tabular-nums">
+          <Star className="size-4 fill-sun text-sun" aria-hidden />
           <span>{Number(rating).toFixed(1)}</span>
           {reviewsCount > 0 && (
             <span className="font-semibold text-ink-soft">

@@ -19,6 +19,9 @@
   --z-sticky: 20;
   --z-overlay: 40;
   --z-modal: 50;
+  --shadow-card: 0 1px 2px rgba(5, 53, 66, 0.04), 0 8px 24px rgba(5, 53, 66, 0.06);
+  --shadow-elevated: 0 4px 12px rgba(5, 53, 66, 0.08), 0 16px 40px rgba(5, 53, 66, 0.1);
+  --ring-subtle: 1px solid color-mix(in srgb, var(--ocean) 12%, transparent);
 }
 
 @theme inline {
@@ -114,6 +117,67 @@ h3 {
 
 .skip-link:focus {
   top: 1rem;
+}
+
+.z-base {
+  z-index: var(--z-base);
+}
+
+.z-sticky {
+  z-index: var(--z-sticky);
+}
+
+.z-overlay {
+  z-index: var(--z-overlay);
+}
+
+.z-modal {
+  z-index: var(--z-modal);
+}
+
+.surface-card {
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  box-shadow:
+    var(--shadow-card),
+    inset 0 0 0 1px color-mix(in srgb, var(--ocean) 12%, transparent);
+}
+
+.chip {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+@media (min-width: 640px) {
+  .chip {
+    min-height: 0;
+    padding: 0.375rem 0.625rem;
+  }
+}
+
+.chip-neutral {
+  background: var(--foam);
+  color: var(--ocean);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ocean) 15%, transparent);
+}
+
+.chip-whatsapp {
+  background: color-mix(in srgb, #25d366 15%, transparent);
+  color: #128c7e;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #25d366 30%, transparent);
+}
+
+.chip-max {
+  max-width: 100%;
 }
 
 @keyframes rise {

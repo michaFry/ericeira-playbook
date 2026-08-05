@@ -37,7 +37,7 @@ export function CollapsibleContactList({
 
   return (
     <div>
-      <ul className="divide-y divide-ocean/10 overflow-hidden rounded-2xl bg-surface shadow-sm ring-1 ring-ocean/12">
+      <ul className="surface-card divide-y divide-ocean/10">
         {visible.map((service) => (
           <ContactCard
             key={service.id}

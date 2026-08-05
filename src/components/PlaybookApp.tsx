@@ -11,6 +11,7 @@ import { ReportModal } from "./ReportModal";
 import { SpecialtyGroupHeader } from "./SpecialtyBadge";
 import { VoteNoteModal } from "./VoteNoteModal";
 import { servicesToMapPins } from "@/lib/map-pins";
+import { cn } from "@/lib/cn";
 import { isProcedure } from "@/lib/steps";
 import { groupContactsBySpecialty } from "@/lib/specialty-groups";
 import type {
@@ -279,7 +280,7 @@ export function PlaybookApp({
   }
 
   return (
-    <div className="relative z-[1] mx-auto w-full max-w-6xl overflow-x-hidden px-4 pb-[max(5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pt-5">
+    <div className="relative z-base mx-auto w-full max-w-6xl overflow-x-hidden px-4 pb-[max(5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pt-5">
       <a href="#results" className="skip-link">
         Skip to results
       </a>
@@ -289,11 +290,11 @@ export function PlaybookApp({
           Ericeira dads
         </p>
 
-        <div className="relative overflow-hidden rounded-[1.5rem] bg-ocean-deep px-4 pb-8 pt-8 text-foam shadow-[0_28px_70px_rgba(5,53,66,0.32)] sm:rounded-[2.25rem] sm:px-11 sm:pb-14 sm:pt-14">
-          <div className="pointer-events-none absolute -right-16 top-0 h-64 w-64 rounded-full bg-wave/25 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-10 left-[20%] h-44 w-44 rounded-full bg-sun/20 blur-3xl" />
+        <div className="relative overflow-hidden rounded-[1.5rem] bg-ocean-deep px-4 pb-8 pt-8 text-foam sm:rounded-[2.25rem] sm:px-11 sm:pb-14 sm:pt-14" style={{ boxShadow: "var(--shadow-elevated)" }}>
+          <div className="pointer-events-none absolute -right-16 top-0 size-64 rounded-full bg-wave/20 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-10 left-[20%] size-44 rounded-full bg-sun/15 blur-2xl" />
 
-          <p className="font-display text-[clamp(2.15rem,10vw,4.5rem)] font-extrabold leading-[0.95] tracking-tight text-white">
+          <p className="font-display text-[clamp(2.15rem,10vw,4.5rem)] font-extrabold leading-[0.95] text-balance text-white">
             Ericeira Dad&apos;s{" "}
             <span className="text-sun">Playbook</span>
           </p>
@@ -322,7 +323,8 @@ export function PlaybookApp({
                   if (activeCategory) setActiveCategory(null);
                 }}
                 placeholder='Try "dishwasher", "plumber"…'
-                className="w-full rounded-2xl border-0 bg-white py-3.5 pl-12 pr-4 text-base font-medium text-ink shadow-[0_10px_30px_rgba(4,42,53,0.16)] outline-none ring-2 ring-transparent transition placeholder:text-ink-soft focus:ring-sun sm:py-4"
+                className="w-full rounded-2xl border-0 bg-white py-3.5 pl-12 pr-4 text-base font-medium text-ink outline-none ring-2 ring-transparent transition placeholder:text-ink-soft focus:ring-sun sm:py-4"
+                style={{ boxShadow: "var(--shadow-card)" }}
               />
             </label>
             <button
@@ -381,7 +383,7 @@ export function PlaybookApp({
           </div>
           <div className="-mx-4 sm:mx-0">
             <div
-              className="flex gap-2 overflow-x-auto overscroll-x-contain px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory sm:flex-wrap sm:overflow-visible sm:rounded-2xl sm:bg-surface sm:p-3 sm:shadow-sm sm:ring-1 sm:ring-ocean/12 sm:snap-none [&::-webkit-scrollbar]:hidden"
+              className="flex gap-2 overflow-x-auto overscroll-x-contain px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory sm:flex-wrap sm:gap-2.5 sm:overflow-visible sm:rounded-2xl sm:bg-surface sm:p-3 sm:shadow-sm sm:ring-1 sm:ring-ocean/12 sm:snap-none [&::-webkit-scrollbar]:hidden"
               role="list"
               aria-label="Categories"
             >
@@ -397,11 +399,12 @@ export function PlaybookApp({
                         prev === cat.id ? null : cat.id
                       )
                     }
-                    className={`pressable inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-xl px-3 py-2.5 text-left text-sm font-semibold sm:min-h-0 ${
+                    className={cn(
+                      "pressable inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-xl px-3 py-2.5 text-left text-sm font-semibold sm:min-h-0",
                       active
-                        ? "bg-ocean text-white shadow-[0_8px_24px_rgba(10,85,99,0.28)]"
-                        : "bg-surface text-ink ring-1 ring-ocean/15 sm:bg-foam"
-                    }`}
+                        ? "bg-ocean text-white [box-shadow:var(--shadow-card)]"
+                        : "bg-surface text-ink [box-shadow:inset_0_0_0_1px_color-mix(in_srgb,var(--ocean)_15%,transparent)] sm:bg-foam"
+                    )}
                   >
                     <CategoryIcon
                       name={cat.icon}
@@ -423,11 +426,19 @@ export function PlaybookApp({
         )}
 
         {showList && grouped.length === 0 && (
-          <div className="rounded-[1.5rem] bg-surface px-5 py-12 text-center ring-1 ring-dashed ring-ocean/20 sm:px-6 sm:py-16">
-            <p className="font-display text-2xl text-ink">No matches</p>
-            <p className="mx-auto mt-2 max-w-[34ch] text-ink-muted">
+          <div className="surface-card px-5 py-12 text-center sm:px-6 sm:py-16">
+            <p className="font-display text-2xl text-balance text-ink">No matches</p>
+            <p className="mx-auto mt-2 max-w-[34ch] text-ink-muted text-pretty">
               Try another word, or propose a tip the group hasn&apos;t listed yet.
             </p>
+            <button
+              type="button"
+              onClick={() => setProposeOpen(true)}
+              className="pressable mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ocean px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              <Plus className="size-4" aria-hidden />
+              Propose a tip
+            </button>
           </div>
         )}
 
@@ -444,7 +455,7 @@ export function PlaybookApp({
                 <CategoryIcon name={category.icon} className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+                <h2 className="font-display text-xl font-semibold text-balance text-ink sm:text-2xl">
                   {category.name}
                 </h2>
                 {category.description && (
@@ -481,7 +492,7 @@ export function PlaybookApp({
                           How-tos
                         </p>
                       )}
-                      <ul className="overflow-hidden rounded-2xl bg-surface shadow-sm ring-1 ring-ocean/12">
+                      <ul className="surface-card divide-y divide-ocean/10">
                         {procedures.map((service) => (
                           <ProcedureCard
                             key={service.id}
@@ -555,7 +566,7 @@ export function PlaybookApp({
         aria-label={activeCategory ? "Category map" : "Ericeira map"}
         aria-hidden={searching}
       >
-        <h2 className="mb-3 font-display text-xl font-semibold text-ink sm:text-2xl">
+        <h2 className="mb-3 font-display text-xl font-semibold text-balance text-ink sm:text-2xl">
           {activeCategory ? "On the map" : "Around Ericeira"}
         </h2>
         <EriceiraMapLazy
@@ -606,7 +617,8 @@ export function PlaybookApp({
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 z-[50] w-[min(92vw,24rem)] -translate-x-1/2 rounded-2xl bg-ocean-deep px-5 py-3 text-center text-sm font-medium text-white shadow-[0_16px_40px_rgba(5,53,66,0.35)]"
+          className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 z-modal w-[min(92vw,24rem)] -translate-x-1/2 rounded-2xl bg-ocean-deep px-5 py-3 text-center text-sm font-medium text-white"
+          style={{ boxShadow: "var(--shadow-elevated)" }}
         >
           {toast}
         </div>
