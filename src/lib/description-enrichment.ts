@@ -130,11 +130,13 @@ export const DESCRIPTION_BY_ID: Record<string, string> = {
   "svc-ido": "Timber yard.",
   "svc-mdo": "Timber yard.",
   "svc-somassul": "Timber yard.",
-  "svc-multiplacas": "Timber / panels yard.",
+  "svc-multiplacas":
+    "Timber / panels yard — Terrugem. Recommended in the dads playbook.",
   "svc-ascenso": "Timber yard — Achada.",
   "svc-edson": "Custom furniture / spray artist.",
   "svc-lourosmad": "Wood delivery — Torres Vedras industrial zone.",
-  "svc-jotalves": "Carpentry & furniture — Encarnação.",
+  "svc-jotalves":
+    "Wide range of wood types — good for live edge too. They can prepare/mill timber for a good price. Encarnação.",
   "svc-sobreira": "Wood / carpentry supplier — Rio de Mouro.",
   "svc-quirumed": "SPA / wellness furniture.",
 

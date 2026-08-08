@@ -249,6 +249,24 @@ export const BUSINESS_ENRICHMENTS: BusinessEnrichment[] = [
     google_note: "Wood delivery / timber supplier for Torres Vedras area.",
   },
   {
+    id: "svc-jotalves",
+    name: "Jotalves, Carpintaria E Móveis, Lda.",
+    details:
+      "Wide range of wood types — good for live edge too. They can prepare/mill timber for a good price. Encarnação.",
+    address: "Jotalves, Carpintaria E Móveis, Lda., Encarnação, Portugal",
+    url: "https://maps.app.goo.gl/4rifPxG9QTwBJhKU9",
+    google_note:
+      "Timber yard / carpentry in Encarnação — many wood types, live edge, and prep/milling at a good price.",
+  },
+  {
+    id: "svc-multiplacas",
+    name: "Multiplacas — Comércio de Madeiras e Derivados, Lda.",
+    details: "Timber / panels yard — Terrugem. Recommended in the dads playbook.",
+    address: "Estr. de Alcolombal 72, 2709-001 Terrugem, Portugal",
+    url: "https://maps.app.goo.gl/MYVRmqVvmJvDS4oF7",
+    google_note: "Timber and wood derivatives supplier in Terrugem.",
+  },
+  {
     id: "svc-nuno-nasc",
     phone: "+351 916 400 528",
     email: "geral@nunonascimento.com",

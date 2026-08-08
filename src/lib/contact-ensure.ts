@@ -139,6 +139,28 @@ export const CURATED_CONTACTS: CuratedContact[] = [
     languages: "pt,en",
     specialty: "mobile_car_wash",
   },
+  // Wood / materials — playbook Maps tips
+  {
+    id: "svc-jotalves",
+    category_id: "cat-wood",
+    name: "Jotalves, Carpintaria E Móveis, Lda.",
+    details:
+      "Wide range of wood types — good for live edge too. They can prepare/mill timber for a good price. Encarnação.",
+    address: "Jotalves, Carpintaria E Móveis, Lda., Encarnação, Portugal",
+    url: "https://maps.app.goo.gl/4rifPxG9QTwBJhKU9",
+    languages: "pt",
+    specialty: "timber",
+  },
+  {
+    id: "svc-multiplacas",
+    category_id: "cat-wood",
+    name: "Multiplacas — Comércio de Madeiras e Derivados, Lda.",
+    details: "Timber / panels yard — Terrugem. Recommended in the dads playbook.",
+    address: "Estr. de Alcolombal 72, 2709-001 Terrugem, Portugal",
+    url: "https://maps.app.goo.gl/MYVRmqVvmJvDS4oF7",
+    languages: "pt",
+    specialty: "timber",
+  },
 ];
 
 export function ensureCuratedContacts(db: Database.Database) {
@@ -173,6 +195,8 @@ export function ensureCuratedContacts(db: Database.Database) {
     "svc-beekeeper",
     "svc-prehab",
   ]);
+  /** Force tip copy / Maps links / specialty even when stubs already exist. */
+  const FORCE_TIP_IDS = new Set(["svc-jotalves", "svc-multiplacas"]);
   const syncCanonical = db.prepare(
     `UPDATE services
      SET category_id = ?,
@@ -186,6 +210,18 @@ export function ensureCuratedContacts(db: Database.Database) {
          specialty = CASE WHEN trim(specialty) = '' AND ? != '' THEN ? ELSE specialty END
      WHERE id = ?`
   );
+  const syncForceTip = db.prepare(
+    `UPDATE services
+     SET category_id = ?,
+         status = 'approved',
+         name = ?,
+         address = CASE WHEN ? != '' THEN ? ELSE address END,
+         url = CASE WHEN ? != '' THEN ? ELSE url END,
+         details = CASE WHEN ? != '' THEN ? ELSE details END,
+         languages = CASE WHEN trim(languages) = '' THEN ? ELSE languages END,
+         specialty = CASE WHEN ? != '' THEN ? ELSE specialty END
+     WHERE id = ?`
+  );
   const now = new Date().toISOString();
   const tx = db.transaction(() => {
     // Old combined “58 / Boardriders” tip → replaced by two clear listings
@@ -196,7 +232,22 @@ export function ensureCuratedContacts(db: Database.Database) {
 
     for (const c of CURATED_CONTACTS) {
       if (exists.get(c.id)) {
-        if (CANONICAL_IDS.has(c.id)) {
+        if (FORCE_TIP_IDS.has(c.id)) {
+          syncForceTip.run(
+            c.category_id,
+            c.name,
+            c.address || "",
+            c.address || "",
+            c.url || "",
+            c.url || "",
+            c.details || "",
+            c.details || "",
+            c.languages || "",
+            c.specialty || "",
+            c.specialty || "",
+            c.id
+          );
+        } else if (CANONICAL_IDS.has(c.id)) {
           syncCanonical.run(
             c.category_id,
             c.name,

@@ -55,6 +55,7 @@ export const SPECIALTY_BY_SERVICE_ID: Record<string, SpecialtyId> = {
   "svc-somassul": "timber",
   "svc-multiplacas": "timber",
   "svc-ascenso": "timber",
+  "svc-jotalves": "timber",
   // Wood delivery
   "svc-lourosmad": "wood_delivery",
   "svc-sobreira": "wood_delivery",
@@ -64,7 +65,6 @@ export const SPECIALTY_BY_SERVICE_ID: Record<string, SpecialtyId> = {
   "svc-brian": "decks",
   // Carpenters
   "svc-brian-carp": "carpenter",
-  "svc-jotalves": "carpenter",
   // Custom furniture / SPA fit-out
   "svc-edson": "furniture",
   "svc-quirumed": "furniture",

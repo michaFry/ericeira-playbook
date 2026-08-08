@@ -235,7 +235,14 @@ const services: SeedService[] = [
   { id: "svc-ido", category_id: "cat-wood-buy", name: "Ido madeira" },
   { id: "svc-mdo", category_id: "cat-wood-buy", name: "Mdo madeiras" },
   { id: "svc-somassul", category_id: "cat-wood-buy", name: "Somassul" },
-  { id: "svc-multiplacas", category_id: "cat-wood-buy", name: "Multiplacas" },
+  {
+    id: "svc-multiplacas",
+    category_id: "cat-wood-buy",
+    name: "Multiplacas — Comércio de Madeiras e Derivados, Lda.",
+    details: "Timber / panels yard — Terrugem. Recommended in the dads playbook.",
+    address: "Estr. de Alcolombal 72, 2709-001 Terrugem, Portugal",
+    url: "https://maps.app.goo.gl/MYVRmqVvmJvDS4oF7",
+  },
   {
     id: "svc-ascenso",
     category_id: "cat-wood-buy",
@@ -286,9 +293,12 @@ const services: SeedService[] = [
   },
   {
     id: "svc-jotalves",
-    category_id: "cat-wood-delivery",
+    category_id: "cat-wood-buy",
     name: "Jotalves, Carpintaria E Móveis, Lda.",
-    address: "Jotalves Carpintaria e Móveis, Encarnação, Portugal",
+    details:
+      "Wide range of wood types — good for live edge too. They can prepare/mill timber for a good price. Encarnação.",
+    address: "Jotalves, Carpintaria E Móveis, Lda., Encarnação, Portugal",
+    url: "https://maps.app.goo.gl/4rifPxG9QTwBJhKU9",
   },
   {
     id: "svc-sobreira",
