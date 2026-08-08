@@ -43,6 +43,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "cat-taxi": "#eab308",
   "cat-legal": "#334155",
   "cat-admin": "#0f766e",
+  "cat-hikes": "#3f6212",
 };
 
 function pinIcon(categoryId: string) {
@@ -177,9 +178,11 @@ export function EriceiraMap({
         </MapContainer>
       </div>
       <p className="bg-surface px-3 py-2 text-center text-[0.7rem] text-ink-soft sm:text-left sm:px-4">
-        {unlocked
-          ? `Including places further afield · ${pins.length} pin${pins.length === 1 ? "" : "s"}`
-          : `Ericeira ±${MAP_RADIUS_KM} km · ${pins.length} pin${pins.length === 1 ? "" : "s"} on the map`}
+        {pins.some((p) => p.categoryId === "cat-hikes") && unlocked
+          ? `Hikes & walks ≈30 km · ${pins.length} pin${pins.length === 1 ? "" : "s"}`
+          : unlocked
+            ? `Including places further afield · ${pins.length} pin${pins.length === 1 ? "" : "s"}`
+            : `Ericeira ±${MAP_RADIUS_KM} km · ${pins.length} pin${pins.length === 1 ? "" : "s"} on the map`}
       </p>
     </div>
   );

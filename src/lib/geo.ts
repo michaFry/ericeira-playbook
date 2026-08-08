@@ -9,6 +9,9 @@ export const ERICEIRA_CENTER = {
 /** Max distance from center for map pins (km). */
 export const MAP_RADIUS_KM = 10;
 
+/** Wider radius used for the Hikes & walks category map. */
+export const HIKES_MAP_RADIUS_KM = 30;
+
 /** Approximate degrees for maxBounds (~10 km box). */
 const DEG_LAT = MAP_RADIUS_KM / 111;
 const DEG_LNG = MAP_RADIUS_KM / (111 * Math.cos((ERICEIRA_CENTER.lat * Math.PI) / 180));

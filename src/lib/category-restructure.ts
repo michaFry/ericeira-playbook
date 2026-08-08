@@ -155,6 +155,15 @@ export const OPTIMIZED_CATEGORIES = [
     sort_order: 170,
   },
   {
+    id: "cat-hikes",
+    name: "Hikes & walks",
+    slug: "hikes-walks",
+    description:
+      "Trailheads and marked walks within ~30 km of Ericeira — coastal paths, PR/GR routes, Tapada & Sintra. OpenStreetMap data (not AllTrails/Wikiloc).",
+    icon: "Footprints",
+    sort_order: 175,
+  },
+  {
     id: "cat-creative",
     name: "Creative",
     slug: "creative",
@@ -233,6 +242,7 @@ export const CATEGORY_REMAP: Record<string, string> = {
 
   "cat-taxes": "cat-legal",
   "cat-kids": "cat-kids",
+  "cat-hikes": "cat-hikes",
 
   "cat-photo": "cat-creative",
   "cat-shirts": "cat-creative",
