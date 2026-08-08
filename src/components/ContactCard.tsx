@@ -185,7 +185,10 @@ export function ContactCard({
                 <div className="flex flex-wrap gap-2">
                   {service.address && (
                     <ActionChip
-                      href={mapsSearchUrl(service.address)}
+                      href={mapsSearchUrl(service.address, {
+                        lat: service.lat,
+                        lng: service.lng,
+                      })}
                       target="_blank"
                       rel="noreferrer"
                       className="chip-max"

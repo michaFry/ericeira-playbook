@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "npx tsx --test src/lib/maps.test.ts",
     "enrich:google": "npx tsx scripts/enrich-from-google.ts",
     "geocode": "npx tsx scripts/geocode-addresses.ts",
     "refresh:hikes": "npx tsx scripts/refresh-hikes-osm.ts"
