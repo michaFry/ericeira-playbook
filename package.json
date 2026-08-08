@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "enrich:google": "npx tsx scripts/enrich-from-google.ts",
-    "geocode": "npx tsx scripts/geocode-addresses.ts"
+    "geocode": "npx tsx scripts/geocode-addresses.ts",
+    "refresh:hikes": "npx tsx scripts/refresh-hikes-osm.ts"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.2",

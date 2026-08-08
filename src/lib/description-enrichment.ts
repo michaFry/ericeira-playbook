@@ -229,6 +229,7 @@ const CATEGORY_FALLBACK: Record<string, string> = {
   "cat-tech": "Tech / repairs.",
   "cat-legal": "Taxes / legal.",
   "cat-kids": "Kids activity.",
+  "cat-hikes": "Hiking route / trailhead near Ericeira.",
   "cat-creative": "Creative service.",
 };
 

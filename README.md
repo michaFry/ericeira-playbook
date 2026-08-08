@@ -34,3 +34,4 @@ On Windows, `better-sqlite3` needs a working Node native build. If install fails
 - Votes are one per browser (local key + server vote row)
 - Community proposals stay `pending` until approved in admin
 - The SQLite file is local and gitignored — each environment seeds its own DB on first start
+- **Hikes & walks** pins come from OpenStreetMap hiking relations within ~30 km of Ericeira (plus a few curated local cliff-walk starts). AllTrails/Wikiloc are not used — they have no public API and forbid scraping. Refresh OSM data via Overpass into `src/data/hikes-osm.json`.

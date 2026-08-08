@@ -12,6 +12,8 @@ import { SpecialtyGroupHeader } from "./SpecialtyBadge";
 import { VoteNoteModal } from "./VoteNoteModal";
 import { servicesToMapPins } from "@/lib/map-pins";
 import { cn } from "@/lib/cn";
+import { ERICEIRA_CENTER, haversineKm } from "@/lib/geo";
+import { HIKES_CATEGORY_ID } from "@/lib/hikes";
 import { isProcedure } from "@/lib/steps";
 import { groupContactsBySpecialty } from "@/lib/specialty-groups";
 import type {
@@ -181,11 +183,25 @@ export function PlaybookApp({
         if (!result.categoryMatch) return null;
         if (activeCategory && activeCategory !== category.id) return null;
         if (kindFilter !== "all" && result.services.length === 0) return null;
-        const sorted = [...result.services].sort(
-          (a, b) =>
+        const sorted = [...result.services].sort((a, b) => {
+          if (category.id === HIKES_CATEGORY_ID) {
+            const da =
+              a.lat != null && a.lng != null
+                ? haversineKm(ERICEIRA_CENTER, { lat: a.lat, lng: a.lng })
+                : 999;
+            const db =
+              b.lat != null && b.lng != null
+                ? haversineKm(ERICEIRA_CENTER, { lat: b.lat, lng: b.lng })
+                : 999;
+            return da - db || a.name.localeCompare(b.name, undefined, {
+              sensitivity: "base",
+            });
+          }
+          return (
             (b.votes || 0) - (a.votes || 0) ||
             a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
-        );
+          );
+        });
         return { category, services: sorted };
       })
       .filter(Boolean) as {
@@ -567,7 +583,11 @@ export function PlaybookApp({
         aria-hidden={searching}
       >
         <h2 className="mb-3 font-display text-xl font-semibold text-balance text-ink sm:text-2xl">
-          {activeCategory ? "On the map" : "Around Ericeira"}
+          {activeCategory === HIKES_CATEGORY_ID
+            ? "Hikes within ~30 km"
+            : activeCategory
+              ? "On the map"
+              : "Around Ericeira"}
         </h2>
         <EriceiraMapLazy
           pins={mapPins}
@@ -577,6 +597,21 @@ export function PlaybookApp({
             setKindFilter("all");
           }}
         />
+        {activeCategory === HIKES_CATEGORY_ID && (
+          <p className="mt-2 text-xs text-ink-soft">
+            Trail pins from{" "}
+            <a
+              className="underline decoration-ocean/40 underline-offset-2 hover:text-ocean"
+              href="https://www.openstreetmap.org/copyright"
+              target="_blank"
+              rel="noreferrer"
+            >
+              OpenStreetMap
+            </a>{" "}
+            (ODbL). Route links open Waymarked Trails. AllTrails/Wikiloc are not
+            scraped (no public reuse API).
+          </p>
+        )}
       </section>
 
       <footer className="mt-12 border-t border-ocean/15 pt-5 text-sm text-ink-soft sm:mt-16 sm:pt-6">

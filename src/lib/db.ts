@@ -6,6 +6,7 @@ import { applyCategoryRestructure } from "./category-restructure";
 import { applyCoordEnrichment } from "./coord-enrichment";
 import { ensureCuratedContacts } from "./contact-ensure";
 import { applyDescriptionEnrichment } from "./description-enrichment";
+import { ensureHikes } from "./hikes";
 import { applyProcedureEnrichment } from "./procedure-enrichment";
 import { REPORT_AUTO_HIDE_AFTER } from "./reports";
 import { enrichServiceAddresses, seedDatabase } from "./seed-data";
@@ -125,6 +126,7 @@ export function getDb() {
     applyProcedureEnrichment(global.__playbookDb);
     applySpecialtyEnrichment(global.__playbookDb);
     ensureCuratedContacts(global.__playbookDb);
+    ensureHikes(global.__playbookDb);
     applyCoordEnrichment(global.__playbookDb);
     applyBusinessEnrichment(global.__playbookDb);
     applyDescriptionEnrichment(global.__playbookDb);
@@ -154,6 +156,7 @@ export function getDb() {
   applyProcedureEnrichment(db);
   applySpecialtyEnrichment(db);
   ensureCuratedContacts(db);
+  ensureHikes(db);
   applyCoordEnrichment(db);
   applyBusinessEnrichment(db);
   applyDescriptionEnrichment(db);
